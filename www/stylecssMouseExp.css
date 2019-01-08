@@ -1,0 +1,14 @@
+.popover-title {
+color: black;
+font-size: 15px;
+background-color:orange;
+}
+.popover-content {
+color: black;
+font-size: 16px;
+}
+.btn-myClass {
+    background-color: #000000;
+    border: none;
+    color: white;
+}
