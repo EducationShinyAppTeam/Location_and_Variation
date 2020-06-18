@@ -16,6 +16,12 @@ server <- function(input, output, session) {
     })
   })
   
+  ## Work on
+  observeEvent(input$hints == FALSE, {
+    toggle('hintbox')
+  })
+  
+  
   c <- reactiveValues(right = c(sample(1:7, 1)))
   d <- reactiveValues(right = c(sample(1:14, 1)))
   
@@ -684,7 +690,7 @@ server <- function(input, output, session) {
               "Congratulations,you are right !"
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: You can check âmeanâ and âmedianâ boxes to see the current difference."
+              "Sorry, Please click Clear Points and try again. \nHint: You can check mean and median boxes to see the current difference."
             }
           }
           else if (length(val$x) >= 14 & length(val$x) <= 14) {
@@ -1114,7 +1120,7 @@ server <- function(input, output, session) {
               "Congratulations,you are right !"
             }
             else{
-              "Sorry, Please click Clear Points and try again. Hint: you can check SD and IQR by clicking the boxes on the top."
+              "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
             }
           }
           else if (length(val$x) == 14) {
@@ -1438,7 +1444,7 @@ server <- function(input, output, session) {
               "Congratulations,you are right !"
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: You can check âmeanâ and âmedianâ boxes to see the current difference."
+              "Sorry, Please click Clear Points and try again. \nHint: You can check mean and median boxes to see the current difference."
             }
           }
           else if (length(val$x) >= 14 & length(val$x) <= 14) {
