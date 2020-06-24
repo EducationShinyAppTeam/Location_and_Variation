@@ -1,6 +1,7 @@
 library(reshape2)
 library(shiny)
-#library(Cairo)
+
+
 server <- function(input, output, session) {
   val <- reactiveValues(x = NULL, y = NULL)
   

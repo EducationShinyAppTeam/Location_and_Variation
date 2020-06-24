@@ -24,7 +24,7 @@ ui <- dashboardPage(
       menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
       menuItem("Prerequisites", tabName = "prerequisite1", icon = icon("book")),
       menuItem("Challenges", tabName = "challenges", icon = icon("cogs")),
-      menuItem("Reference", tabName = "References", icon = icon("leanpub"))
+      menuItem("References", tabName = "References", icon = icon("leanpub"))
     ),
     tags$div(class = "sidebar-logo",
              boastUtils::psu_eberly_logo("reversed"))
@@ -41,14 +41,14 @@ ui <- dashboardPage(
       tabName = "overview",
 
       h1("Location and Variation"),
-      p("In this App, you will explore measures of location and variation."),
+      p("In this app, you will explore measures of location and variation."),
       br(),
       
       h2("Instructions"),
       tags$ol(
         tags$li("Select the Location, Variation, or Random challenge before start."),
         tags$li("Create points by clicking in the plot to add points and watch your results until you have 15 points total."),
-        tags$li("Show the summary statistics as you go along by checking the corresponding box."),
+        tags$li("Show the summary statistics as you go along by clicking on the hint button and checking the summaries desired."),
         tags$li("There will be a message showing your results on the top of the plot."),
         tags$li("Click Clear Points and click New Challenge to start over.")
       ),
@@ -57,8 +57,8 @@ ui <- dashboardPage(
         style = "text-align:center",
         bsButton(
           inputId = "nextbutton",
-          label = "Explore prerequisites",
-          icon("wpexplorer"),
+          label = "GO!",
+          icon("bolt"),
           size = "large",
           class = "circle grow"
         )
@@ -73,11 +73,11 @@ ui <- dashboardPage(
         Daehoon Gwak."
       ),
       p(
-        "Special thanks to Sitong Liu for help on some programming issues.",
+        "Special thanks to Sitong Liu for helping with some programming issues.",
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 6/17/2020 by DHG.")
+        div(class = "updated", "Last Update: 6/22/2020 by DHG.")
       )
     ),
     
@@ -181,7 +181,7 @@ ui <- dashboardPage(
               ),
               
               fluidRow(
-                column(6,
+                column(12,
               #show how many plots user can input
               verbatimTextOutput("diff1"),
               tags$style(type = 'text/css', '#diff1 {background-color: white;}'))),
@@ -202,7 +202,7 @@ ui <- dashboardPage(
               
               
               fluidRow(
-                column(6,
+                column(12,
                        #show how many plots user can input
                        verbatimTextOutput("diff2"),
                        tags$style(type = 'text/css', '#diff2 {background-color: white;}'))),
@@ -223,7 +223,7 @@ ui <- dashboardPage(
               ),
               
               fluidRow(
-                column(6,
+                column(12,
                        #show how many plots user can input
                        verbatimTextOutput("diff3"),
                        tags$style(type = 'text/css', '#diff3 {background-color: white;}'))),
@@ -271,18 +271,27 @@ ui <- dashboardPage(
         ),
         column(2, br(), br(),
                conditionalPanel("input.hints != 0 ", id = 'hintbox',
+                               
                               checkboxInput("median", "Median", FALSE),
-                              p("Blue vertical Line",style="color:blue"), br(),
+                              div(
+                              p("Blue vertical Line",style="color:blue"),
+                              style = 'margin-top:-15px;'), br(),
                               
                               checkboxInput("mean", "Mean", FALSE),
-                              p("Red vertical Line",style="color:red"), br(),
+                              div(
+                              p("Red vertical Line",style="color:red"),
+                              style = 'margin-top:-15px;'), br(),
                               
                               checkboxInput("iqr", "IQR", FALSE),
-                              p("Blue horizontal Line",style="color:blue"), br(),
+                              div(
+                              p("Blue horizontal Line",style="color:blue"),
+                              style = 'margin-top:-15px;'), br(),
                               
                               checkboxInput("sd", "Std Dev", FALSE),
-                              p("Red horizontal Line",style="color:red")
-                              )
+                              div(
+                              p("Red horizontal Line",style="color:red"),
+                              style = 'margin-top:-15px;')
+                          )
         )
         )
       )
@@ -332,6 +341,13 @@ ui <- dashboardPage(
         class = "hangingindent",
         " Statistical Applets (n.d.), Available from
           http://digitalfirst.bfwpub.com/stats_applet/generic_stats_applet_6_meanmed.html"
+      ),
+      p(     #reshape2
+        class = "hangingindent",
+        "Wickham, H., (2020),
+            reshape2: Flexibly Reshape Data: A Reboot of the Reshape Package
+            (v1.4.4), [R package]. Available from
+            https://cran.r-project.org/web/packages/reshape2/index.htmll"
       )
       
     )
