@@ -1,10 +1,8 @@
 library(shinydashboard)
 library(shiny)
-library(shinyjs)
 library(shinyBS)
-library(shinyWidgets)
 library(boastUtils)
-
+#Let`s begin
 ui <- dashboardPage(
   skin = "yellow",
   dashboardHeader(
@@ -16,14 +14,13 @@ ui <- dashboardPage(
              icon('home', lib = 'font-awesome'))
     )
   ),
-  
   dashboardSidebar(
     width = 250,
     sidebarMenu(
       id = "tabs",
       menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
       menuItem("Prerequisites", tabName = "prerequisite1", icon = icon("book")),
-      menuItem("Challenges", tabName = "challenges", icon = icon("cogs")),
+      menuItem("Game", tabName = "game", icon = icon("gamepad")),
       menuItem("References", tabName = "References", icon = icon("leanpub"))
     ),
     tags$div(class = "sidebar-logo",
@@ -34,54 +31,47 @@ ui <- dashboardPage(
     tags$link(rel = "stylesheet", type = "text/css",
               href = "https://educationshinyappteam.github.io/Style_Guide/theme/boast.css")
   ),
-  
   tabItems(
     ## First tab content - Overview tab
     tabItem(
       tabName = "overview",
-
       h1("Location and Variation"),
       p("In this app, you will explore measures of location and variation."),
       br(),
-      
       h2("Instructions"),
       tags$ol(
         tags$li("Select the Location, Variation, or Random challenge before start."),
-        tags$li("Create points by clicking in the plot to add points and watch your results until you have 15 points total."),
-        tags$li("Show the summary statistics as you go along by clicking on the hint button and checking the summaries desired."),
+        tags$li("Create points by clicking in the plot to add points 
+                and watch your results until you have 15 points total."),
+        tags$li("Show the summary statistics as you go along by clicking on the hint button 
+                and checking the summaries desired."),
         tags$li("There will be a message showing your results on the top of the plot."),
         tags$li("Click Clear Points and click New Challenge to start over.")
       ),
-      
       div(
         style = "text-align:center",
         bsButton(
           inputId = "nextbutton",
           label = "GO!",
-          icon("bolt"),
-          size = "large",
-          class = "circle grow"
+          icon = icon("bolt"),
+          size = "large"
         )
       ),
-      
       #Acknowledgements
       br(),
       br(),
       h2("Acknowledgements"),
       p(
-        "This app was developed and coded by Caihui Xiao and further updated by Zhiliang Zhang, Jiajun Gao, and
-        Daehoon Gwak."
-      ),
-      p(
-        "Special thanks to Sitong Liu for helping with some programming issues.",
+        "This app was originally developed and coded by Caihui Xiao. The app was further updated by 
+        Zhiliang Zhang and Jiajun Gao in June 2018, and by by Daehoon Gwak in June 2020.
+        Special thanks to Sitong Liu for helping with some programming issues.",
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 6/22/2020 by DHG.")
+        div(class = "updated", "Last Update: 6/26/2020 by DG.")
       )
     ),
-    
-    ##Second tab - Prerequiste tab 
+    ##Second tab - Prerequisites tab 
     tabItem(
       tabName = "prerequisite1",
       withMathJax(),
@@ -90,46 +80,43 @@ ui <- dashboardPage(
       tags$ol(
         tags$li(
           "The mean of a data set is the numerical average."
-        ),
+          ),
         tags$li(
           "The median of a data set is the 50th percentile (the middle value when the numbers are put in order."
-        ),
+          ),
         tags$li(
-          "The lower quartile (also called the first quartile and abbreviated as \\(Q_l\\)) is the 25th percentile in a data set.
-                                             Thus, 25% of the values on the list of data would fall below \\(Q_l\\) and 75% would be larger than \\(Q_l\\)."
-        ),
+          "The lower quartile (also called the first quartile and abbreviated as \\(Q_l\\)) is the 25th percentile in a data set. 
+          Thus, 25% of the values on the list of data would fall below \\(Q_l\\) and 75% would be larger than \\(Q_l\\)."
+          ),
         tags$li(
-          "The upper quartile (also called the third quartile and abbreviated as \\(Q_u\\)) is the 75th percentile in a data set.
-                                   Thus, 75% of the values on the list of data would fall below \\(Q_u\\) and 25% would be larger than \\(Q_u\\)."
-        ),
+          "The upper quartile (also called the third quartile and abbreviated as \\(Q_u\\)) is the 75th percentile in a data set. 
+          Thus, 75% of the values on the list of data would fall below \\(Q_u\\) and 25% would be larger than \\(Q_u\\)."
+          ),
         tags$li(
-          "The interquartile range (abbreviated as IQR) is the difference between the upper quartile and the lower quartile in a data set so \\(IQR = Q_u\\) - \\(Q_l\\).
-                                   The IQR provides a resistant measure of the variability of a set of data."
-        ),
+          "The interquartile range (abbreviated as IQR) is the difference between the upper quartile 
+          and the lower quartile in a data set so \\(IQR = Q_u\\) - \\(Q_l\\). 
+          The IQR provides a resistant measure of the variability of a set of data."
+          ),
         tags$li(
-          "The standard deviation (SD) measures how far data values differ from the mean.
-                                   If there was no variability, every measurement would be the same as all being the mean value - and the standard deviation would be zero.
-                                   As a rule of thumb, about 68% of the values in a symmetric histogram come within one standard deviation of the mean."
-        )
-      ),
-      
-      br(),
+          "The standard deviation (SD) measures how far data values differ from the mean. 
+          If there was no variability, every measurement would be the same as all being the mean value
+          and the standard deviation would be zero. 
+          As a rule of thumb, about 68% of the values in a symmetric histogram come within one standard deviation of the mean."
+          )
+        ),br(),
       div(
         style = "text-align:center",
         bsButton(
           inputId = "start",
           label = "GO!",
-          icon("bolt"),
-          size = "large",
-          class = "circle grow"
+          icon =  icon("bolt"),
+          size = "large"
         )
       )
-      
     ),
-    
     # Third tab - Challenge tab
     tabItem(
-      tabName = "challenges",
+      tabName = "game",
       fluidPage(
         #buttons
         div(
@@ -153,75 +140,82 @@ ui <- dashboardPage(
           type = 'toggle',
           status = "myClass",
           size = "small"
-        ),
+          ),
         bsPopover(
           "hints",
           " ",
           "Click me if you want to see hints",
           place = "right"
-        )
+          )
         ),
-        
-        
-        
         # Add a title
         titlePanel("Click Points for Location and Variation"),
-        
         wellPanel(
           style = "background-color: white;",
-          
           tabsetPanel(
             type = "tabs",
             tabPanel(
-              "Location",
+              title = "Location",
               verbatimTextOutput("questionforL"),
               tags$style(
                 type = 'text/css',
                 '#questionforL {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
-              ),
-              
+                ),
               fluidRow(
                 column(12,
               #show how many plots user can input
               verbatimTextOutput("diff1"),
               tags$style(type = 'text/css', '#diff1 {background-color: white;}'))),
-              
               fluidRow(
-                column(4, verbatimTextOutput("mean2"), tags$style(type = 'text/css', '#mean2 {background-color: white;}')),
-                column(4, verbatimTextOutput("meanvalue"), tags$style(type = 'text/css', '#meanvalue {background-color: white;}')),
-                column(4, verbatimTextOutput("mvalue"), tags$style(type = 'text/css', '#mvalue {background-color: white;}'))              )
-            ),
-            
+                column(
+                  4,
+                  verbatimTextOutput("mean2"),
+                  tags$style(type = 'text/css', '#mean2 {background-color: white;}')
+                ),
+                column(
+                  4,
+                  verbatimTextOutput("meanvalue"),
+                  tags$style(type = 'text/css', '#meanvalue {background-color: white;}')
+                ),
+                column(
+                  4,
+                  verbatimTextOutput("mvalue"),
+                  tags$style(type = 'text/css', '#mvalue {background-color: white;}')
+                )
+              )
+              ),
             tabPanel(
-              "Variation",
+              title = "Variation",
               verbatimTextOutput("questionforV"),
               tags$style(
                 type = 'text/css',
                 '#questionforV {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
-              ),
-              
-              
+                ),
               fluidRow(
                 column(12,
                        #show how many plots user can input
                        verbatimTextOutput("diff2"),
                        tags$style(type = 'text/css', '#diff2 {background-color: white;}'))),
-              
               fluidRow(
-              column(6, verbatimTextOutput("iqr2"), tags$style(type = 'text/css', '#iqr2 {background-color: white;}')),
-              column(6, verbatimTextOutput("sd2"), tags$style(type = 'text/css', '#sd2 {background-color: white;}'))
+                column(
+                  6,
+                  verbatimTextOutput("iqr2"),
+                  tags$style(type = 'text/css', '#iqr2 {background-color: white;}')
+                ),
+                column(
+                  6,
+                  verbatimTextOutput("sd2"),
+                  tags$style(type = 'text/css', '#sd2 {background-color: white;}')
+                )
               )
-              
             ),
-            
             tabPanel(
-              "Random",
+              title = "Random",
               verbatimTextOutput("questionforR"),
               tags$style(
                 type = 'text/css',
                 '#questionforR {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
-              ),
-              
+                ),
               fluidRow(
                 column(12,
                        #show how many plots user can input
@@ -229,20 +223,34 @@ ui <- dashboardPage(
                        tags$style(type = 'text/css', '#diff3 {background-color: white;}'))),
               
               fluidRow(
-                column(4, tags$style(type = 'text/css', '#mean3 {background-color: white;}'),
-                       verbatimTextOutput("mean3")),
-                column(4, tags$style(type = 'text/css', '#meanvalue1 {background-color: white;}'),
-                       verbatimTextOutput("meanvalue1")),
-                column(4, tags$style(type = 'text/css', '#mvalue4 {background-color: white;}'),
-                       verbatimTextOutput("mvalue4")),
-                column(6, tags$style(type = 'text/css', '#iqr3 {background-color: white;}'),
-                       verbatimTextOutput("iqr3")),
-                column(6, tags$style(type = 'text/css', '#sd3 {background-color: white;}'),
-                       verbatimTextOutput("sd3"))
+                column(
+                  4,
+                  tags$style(type = 'text/css', '#mean3 {background-color: white;}'),
+                  verbatimTextOutput("mean3")
+                ),
+                column(
+                  4,
+                  tags$style(type = 'text/css', '#meanvalue1 {background-color: white;}'),
+                  verbatimTextOutput("meanvalue1")
+                ),
+                column(
+                  4,
+                  tags$style(type = 'text/css', '#mvalue4 {background-color: white;}'),
+                  verbatimTextOutput("mvalue4")
+                ),
+                column(
+                  6,
+                  tags$style(type = 'text/css', '#iqr3 {background-color: white;}'),
+                  verbatimTextOutput("iqr3")
+                ),
+                column(
+                  6,
+                  tags$style(type = 'text/css', '#sd3 {background-color: white;}'),
+                  verbatimTextOutput("sd3")
+                )
               )
-            )
-          ),
-          
+              )
+            ),
           fluidRow(
           column(
             1,
@@ -251,61 +259,41 @@ ui <- dashboardPage(
           column(
             1, offset = 5,
             actionButton("clear", "Clear Points", style = "color: #fff; background-color: orange")
+            )
           )
-          )
-          
-          ),
-        
-        
-        fluidRow(
-        # Create a space for the plot output
-        column(10, plotOutput("clusterPlot1", "100%", "500px", click =
-                            "clusterClick"),
-               # bsPopover(
-               #   "clusterPlot1",
-               #   " ",
-               #   "Click points on the graph to create your plot",
-               #   trigger = "hover",
-               #   place = "top"
-               # )
         ),
-        column(2, br(), br(),
-               conditionalPanel("input.hints != 0 ", id = 'hintbox',
-                               
-                              checkboxInput("median", "Median", FALSE),
-                              div(
-                              p("Blue vertical Line",style="color:blue"),
-                              style = 'margin-top:-15px;'), br(),
-                              
-                              checkboxInput("mean", "Mean", FALSE),
-                              div(
-                              p("Red vertical Line",style="color:red"),
-                              style = 'margin-top:-15px;'), br(),
-                              
-                              checkboxInput("iqr", "IQR", FALSE),
-                              div(
-                              p("Blue horizontal Line",style="color:blue"),
-                              style = 'margin-top:-15px;'), br(),
-                              
-                              checkboxInput("sd", "Std Dev", FALSE),
-                              div(
-                              p("Red horizontal Line",style="color:red"),
-                              style = 'margin-top:-15px;')
-                          )
-        )
-        )
+        fluidRow(# Create a space for the plot output
+          column(
+            10,
+            plotOutput("clusterPlot1", "100%", "500px", click = "clusterClick"),
+          ),
+          column(
+            2,
+            br(), br(), # to fit the height on both plot and hintboxes
+            conditionalPanel(
+              "input.hints != 0 ", id = 'hintbox',
+              checkboxInput("median", "Median", FALSE),
+              div(p("Blue vertical Line", style = "color:blue"),
+                  style = 'margin-top:-15px;'),
+              br(),
+              checkboxInput("mean", "Mean", FALSE),
+              div(p("Red vertical Line", style = "color:red"),
+                  style = 'margin-top:-15px;'),
+              br(),
+              checkboxInput("iqr", "IQR", FALSE),
+              div(p("Blue horizontal Line", style = "color:blue"),
+                  style = 'margin-top:-15px;'),
+              br(),
+              checkboxInput("sd", "Std Dev", FALSE),
+              div(p("Red horizontal Line", style = "color:red"),
+                  style = 'margin-top:-15px;')
+            )
+          ))
       )
     ),
     tabItem(
       tabName = "References",
-      withMathJax(),
       h2("References"),
-      p(     #shinyjs
-        class = "hangingindent",
-        "Attali, D. (2020), Easily Improve the User Experience of Your Shiny Apps in Seconds.
-            (v1.1), [R package]. Available from
-            https://cran.r-project.org/web/packages/shinyjs/shinyjs.pdf"
-      ),
       p(     #shinyBS
         class = "hangingindent",
         "Bailey, E. (2015), shinyBS: Twitter bootstrap components for shiny.
@@ -330,26 +318,11 @@ ui <- dashboardPage(
             (2019), shiny: Web application framework for R. (v1.4.0),
             [R Package]. Available from https://CRAN.R-project.org/package=shiny"
       ),
-      p(     #shinyWidgets
-        class = "hangingindent",
-        "Perrier, V., Meyer, F., Granjon, D., Fellows, I., and Davis, W.
-            (2020), shinyWidgets: Custom Inputs Widgets for Shiny
-            (v0.5.2), [R package]. Available from
-            https://cran.r-project.org/web/packages/shinyWidgets/index.html"
-      ),
       p(     #reference for ideas
         class = "hangingindent",
         " Statistical Applets (n.d.), Available from
           http://digitalfirst.bfwpub.com/stats_applet/generic_stats_applet_6_meanmed.html"
-      ),
-      p(     #reshape2
-        class = "hangingindent",
-        "Wickham, H., (2020),
-            reshape2: Flexibly Reshape Data: A Reboot of the Reshape Package
-            (v1.4.4), [R package]. Available from
-            https://cran.r-project.org/web/packages/reshape2/index.htmll"
       )
-      
-    )
-  ))
+      )
+    ))
 )

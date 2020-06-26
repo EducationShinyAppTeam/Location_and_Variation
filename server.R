@@ -1,13 +1,10 @@
-library(reshape2)
-library(shiny)
-
-
+library(boastUtils)
+#Let`s begin
 server <- function(input, output, session) {
   val <- reactiveValues(x = NULL, y = NULL)
-  
   # Listen for clicks
   observe({
-    # Initially will be empty
+    # Initially this will be empty
     if (is.null(input$clusterClick)) {
       return()
     }
@@ -16,66 +13,46 @@ server <- function(input, output, session) {
       val$y <- c(val$y, input$clusterClick$y)
     })
   })
-  
-  ## Work on
-  observeEvent(input$hints == FALSE, {
-    toggle('hintbox')
-  })
-  
-  
   c <- reactiveValues(right = c(sample(1:7, 1)))
   d <- reactiveValues(right = c(sample(1:14, 1)))
-  
   observeEvent(input$bs, {
     c$right = sample(1:7, 1)
     d$right = sample(1:14, 1)
   })
-  
   observe({
     if (input$bs >= 0) {
       val$x <- NULL
       val$y <- NULL
     }
   })
-  
-  # observe({
-  #   if (input$buttons >= 0){
-  #     val$x <- NULL
-  #     val$y <- NULL
-  #   }
-  # })
-  
-  # Clear the points on button click
+  # Clear the points on 'clear' button click
   observe({
     if (input$clear >= 0) {
       val$x <- NULL
       val$y <- NULL
     }
   })
-  
   observeEvent(input$nextbutton, {
     updateTabItems(session, "tabs", "prerequisite1")
   })
-  
   observeEvent(input$start, {
-    updateTabItems(session, "tabs", "challenges")
+    updateTabItems(session, "tabs", "game")
   })
-  
-  observeEvent(input$inst1, {
-    sendSweetAlert(
-      session = session,
-      title = "Instruction:",
-      type = "info",
-      tags$ol(
-        tags$li('Select the Location, Variation, or Random challenge to start the game.'),
-        tags$li('Create points by clicking in the plot to add points and watch your results until you have 15 points total.'),
-        tags$li('Show summary statistics as you go along by checking the corresponding box.'),
-        tags$li('There will be a message showing your results on the top of the plot.'),
-        tags$li('Click Clear Points and click New Challenge to start over.')
-              )
-    )
-  })
-  
+  # observeEvent(input$inst1, {
+  #   sendSweetAlert(
+  #     session = session,
+  #     title = "Instruction:",
+  #     type = "info",
+  #     tags$ol(
+  #       tags$li('Select the Location, Variation, or Random challenge to start the game.'),
+  #       tags$li('Create points by clicking in the plot to add points and watch your results until you have 15 points total.'),
+  #       tags$li('Show summary statistics as you go along by checking the corresponding box.'),
+  #       tags$li('There will be a message showing your results on the top of the plot.'),
+  #       tags$li('Click Clear Points and click New Challenge to start over.')
+  #             )
+  #     )
+  # })
+  # 'Location' question
   output$questionforL <- renderText({
     if (c$right == 1) {
       "Challenge: Please use 15 points to make them roughly symmetric."
@@ -99,6 +76,7 @@ server <- function(input, output, session) {
       "Challenge: Please use 15 points to make the mean greater than median."
     }
   })
+  # 'Variation' question
   output$questionforV <- renderText({
     if (c$right == 1) {
       "Challenge: Please use 15 points to make both the SD and IQR more than 3."
@@ -122,6 +100,7 @@ server <- function(input, output, session) {
       "Challenge: Please use 15 points to make both the SD and the IQR less than 2."
     }
   })
+  # 'Random' question
   output$questionforR <- renderText({
     if (d$right == 1) {
       "Challenge: Please use 15 points to make them roughly symmetric."
@@ -170,7 +149,6 @@ server <- function(input, output, session) {
   output$clusterPlot1 <- renderPlot({
     tryCatch({
       # Format the data as a matrix
-      
       store = matrix(0, 150, 2)
       store1 = matrix(0, 15, 2)
       if (length(val$x) > 0 & length(val$x) < 15) {
@@ -178,7 +156,6 @@ server <- function(input, output, session) {
           store[i, 1] <- signif(val$x[i], digits = 2)
           store[i, 2] <- 1
         }
-        
         if (length(val$x) > 1) {
           for (i in 1:length(val$x)) {
             for (j in i + 1:length(val$x)) {
@@ -207,9 +184,7 @@ server <- function(input, output, session) {
           store1[i, 2] <- store[i, 2]
         }
       }
-      
       # Try to cluster
-      
       mclust2Dplot(
         data = store,
         what = "classification",
@@ -232,8 +207,6 @@ server <- function(input, output, session) {
         cex.axis = 1.5,
         pch = 16
       )
-      
-      #if( input$median   == "TRUE" & length(val$x) >= 1 ){
       output$meanvalue <- renderText({
         if (length(val$x) < 15 &
             length(val$x) >= 1  & input$median   == "TRUE") {
@@ -252,9 +225,6 @@ server <- function(input, output, session) {
           paste("median:", signif(median(store1[, 1]), digits = 3))
         }
       })
-      # }
-      #  if (input$mean == "TRUE" & length(val$x) > 1 ){
-      
       if (length(val$x) < 15 &
           input$mean == "TRUE" & length(val$x) > 1) {
         abline(v = (signif(mean(val$x), digits = 3)),
@@ -267,7 +237,6 @@ server <- function(input, output, session) {
                col = "red",
                lwd = "4")
       }
-      
       output$mvalue <- renderText({
         if (length(val$x) >= 1 &
             length(val$x) < 15 & input$mean == "TRUE") {
@@ -285,7 +254,6 @@ server <- function(input, output, session) {
           paste("mean:", signif(mean(store1[, 1]), digits = 3))
         }
       })
-      # if( input$median   == "TRUE"){
       output$mean2 <- renderText({
         if (length(val$x) >= 2 &
             length(val$x) < 15 &
@@ -299,14 +267,12 @@ server <- function(input, output, session) {
             mean(store1[, 1]) - median(store1[, 1])
           ), digits = 3))
         }
-        
       })
       output$mean3 <- renderText({
         if (length(val$x) >= 1 &
             length(val$x) < 15 &
             input$mean == "TRUE" & input$median   == "TRUE") {
-          paste("Absolute Difference:", signif(abs(mean(val$x) - median(val$x)), digits =
-                                                 2))
+          paste("Absolute Difference:", signif(abs(mean(val$x) - median(val$x)), digits = 2))
         }
         else if (length(val$x) >= 15 &
                  input$mean == "TRUE" & input$median   == "TRUE")
@@ -316,20 +282,9 @@ server <- function(input, output, session) {
           ), digits = 2))
         }
       })
-      
-      
-      
-      #}
-      
-      #}
-      #   if (input$sd == "TRUE" & length(val$x) > 1 ){
-      
-      
-      
       output$sd2 <- renderText({
         if (length(val$x) < 15 & input$sd == "TRUE" & length(val$x) > 1) {
           paste("SD:", signif(abs(sd(val$x)), digits = 2))
-          
         }
         else if (length(val$x) >= 15 & input$sd == "TRUE") {
           paste("SD:", signif(abs(sd(store1[, 1])), digits = 2))
@@ -338,14 +293,11 @@ server <- function(input, output, session) {
       output$sd3 <- renderText({
         if (length(val$x) < 15 & input$sd == "TRUE" & length(val$x) > 1) {
           paste("SD:", signif(abs(sd(val$x)), digits = 2))
-          
         }
         else if (length(val$x) >= 15 & input$sd == "TRUE") {
           paste("SD:", signif(abs(sd(store1[, 1])), digits = 2))
         }
       })
-      #abline(v=(signif(sd(val$x),digits=2)),col="blue",lwd = "4")
-      
       if (length(val$x) < 15 &
           input$sd == "TRUE" & length(val$x) > 1) {
         segments(mean(val$x) - sd(val$x),
@@ -365,8 +317,7 @@ server <- function(input, output, session) {
                  0,
                  lwd = "4",
                  col = "red")
-        
-      }
+        }
       else if (length(val$x) >= 15 & input$sd == "TRUE") {
         segments(
           mean(store1[, 1]) - sd(store1[, 1]),
@@ -386,10 +337,6 @@ server <- function(input, output, session) {
           col = "red"
         )
       }
-      
-      # }
-      #  if (input$median  == "TRUE" & length(val$x) > 2 ){
-      
       if (length(val$x) < 15 &
           input$median  == "TRUE" & length(val$x) >= 2) {
         abline(v = (signif(median(val$x), digits = 2)),
@@ -401,10 +348,6 @@ server <- function(input, output, session) {
                col = "blue",
                lwd = "4")
       }
-      #}
-      
-      
-      #   if (input$iqr == "TRUE" & length(val$x) > 2 ){
       output$iqr2 <- renderText({
         if (length(val$x) < 15 & input$iqr == "TRUE" & length(val$x) >= 2) {
           paste("IQR:", signif(abs(IQR(val$x)), digits = 3))
@@ -421,8 +364,6 @@ server <- function(input, output, session) {
           paste("IQR:", signif(abs(IQR(store1[, 1])), digits = 3))
         }
       })
-      # }
-      # if (input$iqr == "TRUE" & length(val$x) > 2 ){
       if (length(val$x) < 15 &
           input$iqr == "TRUE" & length(val$x) >= 2) {
         segments(
@@ -446,7 +387,6 @@ server <- function(input, output, session) {
           lwd = "4",
           col = "blue"
         )
-        
       }
       else if (input$iqr == "TRUE" & length(val$x) >= 15) {
         segments(
@@ -471,10 +411,55 @@ server <- function(input, output, session) {
           col = "blue"
         )
       }
-      # abline(v=(signif(IQR(val$x),digits=2)),col="red",lwd = "4")
-      # }
+      # feedback function telling to user how many points left
+      tellMePoints <- function() {
+        if (length(val$x) == 14) {
+          "You still need to plot one point"
+        }
+        else if (length(val$x) == 13) {
+          "You still need to plot 2 points"
+        }
+        else if (length(val$x) == 12) {
+          "You still need to plot 3 points"
+        }
+        else if (length(val$x) == 11) {
+          "You still need to plot 4 points"
+        }
+        else  if (length(val$x) == 10) {
+          "You still need to plot 5 points"
+        }
+        else  if (length(val$x) == 9) {
+          "You still need to plot 6 points"
+        }
+        else   if (length(val$x) == 8) {
+          "You still need to plot 7 points"
+        }
+        else if (length(val$x) == 7) {
+          "You still need to plot 8 points"
+        }
+        else  if (length(val$x) == 6) {
+          "You still need to plot 9 points"
+        }
+        else  if (length(val$x) == 5) {
+          "You still need to plot 10 points"
+        }
+        else if (length(val$x) == 4) {
+          "You still need to plot 11 points"
+        }
+        else  if (length(val$x) == 3) {
+          "You still need to plot 12 points"
+        }
+        else   if (length(val$x) == 2) {
+          "You still need to plot 13 points"
+        }
+        else  if (length(val$x) == 1) {
+          "You still need to plot 14 points"
+        }
+      }
+      # feedback for 'Location' question
       output$diff1 <- renderText({
         if (c$right == 1) {
+          #clicked points are greater and equal than 15
           if (length(val$x) >= 15) {
             if (signif(median(store1[, 1]), digits = 2) == signif(mean(store1[, 1]), 2)) {
               "Congratulations,you are right !"
@@ -483,47 +468,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median of a symmetic distribution."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (c$right == 2) {
@@ -535,50 +481,9 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median."
             }
           }
-          else if (length(val$x) == 14) {
-            " You still need to plot one point"
+          else {
+            tellMePoints()
           }
-          
-          else if (length(val$x) == 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) == 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
-          }
-          
         }
         else if (c$right == 3) {
           if (length(val$x) >= 15) {
@@ -590,47 +495,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check mean and median by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (c$right == 4) {
@@ -642,47 +508,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check mean and median by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (c$right == 5) {
@@ -694,47 +521,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: You can check mean and median boxes to see the current difference."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         
@@ -747,47 +535,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median."
             }
           }
-          else if (length(val$x) == 14) {
-            " You still need to plot one point"
-          }
-          else if (length(val$x) == 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) == 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (c$right == 7) {
@@ -799,53 +548,12 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about left-skewed or right-skewed"
             }
           }
-          else if (length(val$x) == 14) {
-            " You still need to plot one point"
+          else {
+            tellMePoints()
           }
-          
-          else if (length(val$x) == 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) == 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
-          }
-          
         }
       })
-      
+      # feedback for 'Variation' question
       output$diff2 <- renderText({
         if (c$right == 1) {
           if (length(val$x) >= 15) {
@@ -856,47 +564,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (c$right == 2) {
@@ -908,49 +577,9 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
             }
           }
-          else if (length(val$x) == 14) {
-            "You still need to plot one point"
+          else {
+            tellMePoints()
           }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
-          }
-          
         }
         else if (c$right == 3) {
           if (length(val$x) >= 15) {
@@ -967,47 +596,8 @@ server <- function(input, output, session) {
               }
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (c$right == 4) {
@@ -1020,47 +610,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (c$right == 5) {
@@ -1072,47 +623,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (c$right == 6) {
@@ -1124,49 +636,9 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) == 14) {
-            "You still need to plot one point"
+          else {
+            tellMePoints()
           }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
-          }
-          
         }
         else if (c$right == 7) {
           if (length(val$x) >= 15) {
@@ -1183,50 +655,12 @@ server <- function(input, output, session) {
               }
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
       })
+      # feedback for 'Random' question
       output$diff3 <- renderText({
         if (d$right == 1) {
           if (length(val$x) >= 15) {
@@ -1237,47 +671,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median of a symmetic distribution."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (d$right == 2) {
@@ -1289,51 +684,9 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median."
             }
           }
-          
-          else if (length(val$x) == 14) {
-            " You still need to plot one point"
+          else {
+            tellMePoints()
           }
-          
-          else if (length(val$x) == 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
-          }
-          
         }
         else if (d$right == 3) {
           if (length(val$x) >= 15) {
@@ -1344,47 +697,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check mean and median by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (d$right == 4) {
@@ -1396,47 +710,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check mean and median by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (d$right == 5) {
@@ -1448,47 +723,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: You can check mean and median boxes to see the current difference."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (d$right == 6) {
@@ -1500,47 +736,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (d$right == 7) {
@@ -1552,49 +749,9 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) == 14) {
-            "You still need to plot one point"
+          else {
+            tellMePoints()
           }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
-          }
-          
         }
         else if (d$right == 8) {
           if (length(val$x) >= 15) {
@@ -1611,47 +768,8 @@ server <- function(input, output, session) {
               }
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (d$right == 9) {
@@ -1664,47 +782,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (d$right == 10) {
@@ -1716,47 +795,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         
@@ -1769,47 +809,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) == 14) {
-            " You still need to plot one point"
-          }
-          else if (length(val$x) == 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) == 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (d$right == 12) {
@@ -1821,47 +822,8 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
             }
           }
-          else if (length(val$x) == 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
         else if (d$right == 13) {
@@ -1873,50 +835,9 @@ server <- function(input, output, session) {
               "Sorry, Please click Clear Points and try again. \nHint: think about left-skewed or right-skewed"
             }
           }
-          else if (length(val$x) == 14) {
-            " You still need to plot one point"
+          else {
+            tellMePoints()
           }
-          
-          else if (length(val$x) == 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) == 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
-          }
-          
         }
         else if (d$right == 7) {
           if (length(val$x) >= 15) {
@@ -1933,51 +854,11 @@ server <- function(input, output, session) {
               }
             }
           }
-          else if (length(val$x) >= 14 & length(val$x) <= 14) {
-            "You still need to plot one point"
-          }
-          else if (length(val$x) >= 13 & length(val$x) <= 13) {
-            "You still need to plot 2 points"
-          }
-          else if (length(val$x) >= 12 & length(val$x) <= 12) {
-            "You still need to plot 3 points"
-          }
-          else if (length(val$x) >= 11 & length(val$x) <= 11) {
-            "You still need to plot 4 points"
-          }
-          else  if (length(val$x) >= 10 & length(val$x) <= 10) {
-            "You still need to plot 5 points"
-          }
-          else  if (length(val$x) >= 9 & length(val$x) <= 9) {
-            "You still need to plot 6 points"
-          }
-          else   if (length(val$x) >= 8 & length(val$x) <= 8) {
-            "You still need to plot 7 points"
-          }
-          else if (length(val$x) >= 7 & length(val$x) <= 7) {
-            "You still need to plot 8 points"
-          }
-          else  if (length(val$x) >= 6 & length(val$x) <= 6) {
-            "You still need to plot 9 points"
-          }
-          else  if (length(val$x) >= 5 & length(val$x) <= 5) {
-            "You still need to plot 10 points"
-          }
-          else if (length(val$x) >= 4 & length(val$x) <= 4) {
-            "You still need to plot 11 points"
-          }
-          else  if (length(val$x) >= 3 & length(val$x) <= 3) {
-            "You still need to plot 12 points"
-          }
-          else   if (length(val$x) >= 2 & length(val$x) <= 2) {
-            "You still need to plot 13 points"
-          }
-          else  if (length(val$x) >= 1 & length(val$x) <= 1) {
-            "You still need to plot 14 points"
+          else {
+            tellMePoints()
           }
         }
       })
     })
   })
-  
 }
