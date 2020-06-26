@@ -63,7 +63,7 @@ ui <- dashboardPage(
       h2("Acknowledgements"),
       p(
         "This app was originally developed and coded by Caihui Xiao. The app was further updated by 
-        Zhiliang Zhang and Jiajun Gao in June 2018, and by by Daehoon Gwak in June 2020.
+        Zhiliang Zhang and Jiajun Gao in June 2018, and by Daehoon Gwak in June 2020.
         Special thanks to Sitong Liu for helping with some programming issues.",
         br(),
         br(),
@@ -120,7 +120,6 @@ ui <- dashboardPage(
       fluidPage(
         #buttons
         div(
-          style = "display: inline-block;vertical-align:top;",
           # bsButton(
           #   inputId = "inst1", '',
           #   icon = icon("info"),
@@ -151,101 +150,104 @@ ui <- dashboardPage(
         # Add a title
         titlePanel("Click Points for Location and Variation"),
         wellPanel(
-          style = "background-color: white;",
+          #style = "background-color: white;",
           tabsetPanel(
             type = "tabs",
             tabPanel(
               title = "Location",
               verbatimTextOutput("questionforL"),
-              tags$style(
-                type = 'text/css',
-                '#questionforL {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
-                ),
+              # tags$style(
+              #   type = 'text/css',
+              #   '#questionforL {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
+              #   ),
               fluidRow(
                 column(12,
               #show how many plots user can input
-              verbatimTextOutput("diff1"),
-              tags$style(type = 'text/css', '#diff1 {background-color: white;}'))),
+              verbatimTextOutput("diff1")
+              # tags$style(type = 'text/css', '#diff1 {background-color: white;}')
+              )),
               fluidRow(
                 column(
                   4,
-                  verbatimTextOutput("mean2"),
-                  tags$style(type = 'text/css', '#mean2 {background-color: white;}')
+                  verbatimTextOutput("mean2")
+                  #tags$style(type = 'text/css', '#mean2 {background-color: white;}')
                 ),
                 column(
                   4,
-                  verbatimTextOutput("meanvalue"),
-                  tags$style(type = 'text/css', '#meanvalue {background-color: white;}')
+                  verbatimTextOutput("meanvalue")
+                  #tags$style(type = 'text/css', '#meanvalue {background-color: white;}')
                 ),
                 column(
                   4,
-                  verbatimTextOutput("mvalue"),
-                  tags$style(type = 'text/css', '#mvalue {background-color: white;}')
+                  verbatimTextOutput("mvalue")
+                  #tags$style(type = 'text/css', '#mvalue {background-color: white;}')
                 )
               )
-              ),
+            ),
             tabPanel(
               title = "Variation",
               verbatimTextOutput("questionforV"),
-              tags$style(
-                type = 'text/css',
-                '#questionforV {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
-                ),
+              # tags$style(
+              #   type = 'text/css',
+              #   '#questionforV {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
+              #   ),
               fluidRow(
-                column(12,
-                       #show how many plots user can input
-                       verbatimTextOutput("diff2"),
-                       tags$style(type = 'text/css', '#diff2 {background-color: white;}'))),
+                column(
+                  12,
+                  #show how many plots user can input
+                  verbatimTextOutput("diff2")
+                  #tags$style(type = 'text/css', '#diff2 {background-color: white;}')
+                  )), 
               fluidRow(
                 column(
                   6,
-                  verbatimTextOutput("iqr2"),
-                  tags$style(type = 'text/css', '#iqr2 {background-color: white;}')
+                  verbatimTextOutput("iqr2")
+                  #tags$style(type = 'text/css', '#iqr2 {background-color: white;}')
                 ),
                 column(
                   6,
-                  verbatimTextOutput("sd2"),
-                  tags$style(type = 'text/css', '#sd2 {background-color: white;}')
+                  verbatimTextOutput("sd2")
+                  #tags$style(type = 'text/css', '#sd2 {background-color: white;}')
                 )
               )
             ),
             tabPanel(
               title = "Random",
               verbatimTextOutput("questionforR"),
-              tags$style(
-                type = 'text/css',
-                '#questionforR {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
-                ),
+              # tags$style(
+              #   type = 'text/css',
+              #   '#questionforR {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
+              #   ),
               fluidRow(
                 column(12,
                        #show how many plots user can input
-                       verbatimTextOutput("diff3"),
-                       tags$style(type = 'text/css', '#diff3 {background-color: white;}'))),
-              
+                       verbatimTextOutput("diff3")
+                       #tags$style(type = 'text/css', '#diff3 {background-color: white;}')
+                       )),
               fluidRow(
                 column(
                   4,
-                  tags$style(type = 'text/css', '#mean3 {background-color: white;}'),
+                  #tags$style(type = 'text/css', '#mean3 {background-color: white;}'),
                   verbatimTextOutput("mean3")
                 ),
                 column(
                   4,
-                  tags$style(type = 'text/css', '#meanvalue1 {background-color: white;}'),
+                  #tags$style(type = 'text/css', '#meanvalue1 {background-color: white;}'),
                   verbatimTextOutput("meanvalue1")
                 ),
                 column(
                   4,
-                  tags$style(type = 'text/css', '#mvalue4 {background-color: white;}'),
+                  #tags$style(type = 'text/css', '#mvalue4 {background-color: white;}'),
                   verbatimTextOutput("mvalue4")
                 ),
                 column(
                   6,
-                  tags$style(type = 'text/css', '#iqr3 {background-color: white;}'),
+                  #tags$style(type = 'text/css', '#iqr3 {background-color: white;}'),
                   verbatimTextOutput("iqr3")
                 ),
                 column(
                   6,
-                  tags$style(type = 'text/css', '#sd3 {background-color: white;}'),
+                  #tags$style(type = 'text/css', '#sd3 {background-color: white;}'),
                   verbatimTextOutput("sd3")
                 )
               )
@@ -254,39 +256,46 @@ ui <- dashboardPage(
           fluidRow(
           column(
             1,
-            actionButton("bs", "New Challenge", style = "color: #fff; background-color: orange")
+            actionButton("bs", "New Challenge")
           ),
           column(
             1, offset = 5,
-            actionButton("clear", "Clear Points", style = "color: #fff; background-color: orange")
+            actionButton("clear", "Clear Points")
             )
           )
         ),
         fluidRow(# Create a space for the plot output
           column(
             10,
-            plotOutput("clusterPlot1", "100%", "500px", click = "clusterClick"),
+            plotOutput("clusterPlot1", "100%", "500px", click = "clusterClick")
           ),
           column(
             2,
             br(), br(), # to fit the height on both plot and hintboxes
-            conditionalPanel(
-              "input.hints != 0 ", id = 'hintbox',
+            conditionalPanel("input.hints != 0 ", id = 'hintbox',
               checkboxInput("median", "Median", FALSE),
-              div(p("Blue vertical Line", style = "color:blue"),
-                  style = 'margin-top:-15px;'),
+              #div(
+                p("Blue vertical Line"),
+                    #, style = "color:blue"),
+                  #style = 'margin-top:-15px;'),
               br(),
               checkboxInput("mean", "Mean", FALSE),
-              div(p("Red vertical Line", style = "color:red"),
-                  style = 'margin-top:-15px;'),
+              #div(
+                p("Red vertical Line"),
+                  #, style = "color:red"),
+                  #style = 'margin-top:-15px;'),
               br(),
               checkboxInput("iqr", "IQR", FALSE),
-              div(p("Blue horizontal Line", style = "color:blue"),
-                  style = 'margin-top:-15px;'),
+              #div(
+                p("Blue horizontal Line"),
+               #, style = "color:blue"),
+                  #style = 'margin-top:-15px;'),
               br(),
               checkboxInput("sd", "Std Dev", FALSE),
-              div(p("Red horizontal Line", style = "color:red"),
-                  style = 'margin-top:-15px;')
+              #div(
+                p("Red horizontal Line")
+                #, style = "color:red"),
+                  #style = 'margin-top:-15px;')
             )
           ))
       )
