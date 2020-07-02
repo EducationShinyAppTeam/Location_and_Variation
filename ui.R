@@ -8,6 +8,8 @@ ui <- dashboardPage(
   dashboardHeader(
     titleWidth = 250,
     title = "Location and Variation",
+    tags$li(class = "dropdown",
+            actionLink("info",icon("info",class = "myClass"))),
     tags$li(
       class = 'dropdown',
       tags$a(href = "https://shinyapps.science.psu.edu/",
@@ -68,7 +70,7 @@ ui <- dashboardPage(
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 6/26/2020 by DG.")
+        div(class = "updated", "Last Update: 07/01/2020 by DG.")
       )
     ),
     ##Second tab - Prerequisites tab 
@@ -117,142 +119,94 @@ ui <- dashboardPage(
     # Third tab - Challenge tab
     tabItem(
       tabName = "game",
-      fluidPage(
-        #buttons
-        div(
-          # bsButton(
-          #   inputId = "inst1", '',
-          #   icon = icon("info"),
-          #   status = "myClass",
-          #   size = "small"
-          # )
-        # ),
-        # bsPopover(
-        #   "inst1",
-        #   " ",
-        #   "Click to show the instruction for this challenge",
-        #   place = "bottom"
-        # ),
-        bsButton(
-          inputId = "hints", '',
-          icon = icon("question"),
-          type = 'toggle',
-          status = "myClass",
-          size = "small"
-          ),
-        bsPopover(
-          "hints",
-          " ",
-          "Click me if you want to see hints",
-          place = "right"
-          )
-        ),
         # Add a title
-        titlePanel("Click Points for Location and Variation"),
-        wellPanel(
-          #style = "background-color: white;",
+        h2("Click Points for Location and Variation"),
           tabsetPanel(
             type = "tabs",
             tabPanel(
               title = "Location",
-              verbatimTextOutput("questionforL"),
-              # tags$style(
-              #   type = 'text/css',
-              #   '#questionforL {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
-              #   ),
+              tags$strong(textOutput("questionforL")),
+              br(),
               fluidRow(
-                column(12,
-              #show how many plots user can input
-              verbatimTextOutput("diff1")
-              # tags$style(type = 'text/css', '#diff1 {background-color: white;}')
-              )),
-              fluidRow(
-                column(
-                  4,
-                  verbatimTextOutput("mean2")
-                  #tags$style(type = 'text/css', '#mean2 {background-color: white;}')
+                column(1,
+                       bsButton(
+                         inputId = "hints",
+                         label = "Hint",
+                         type = 'toggle',
+                         size = "medium")
                 ),
                 column(
-                  4,
-                  verbatimTextOutput("meanvalue")
-                  #tags$style(type = 'text/css', '#meanvalue {background-color: white;}')
+                  3,
+                  uiOutput("mean2")
                 ),
                 column(
-                  4,
-                  verbatimTextOutput("mvalue")
-                  #tags$style(type = 'text/css', '#mvalue {background-color: white;}')
+                  2,
+                  uiOutput("meanvalue")
+                ),
+                column(
+                  2, 
+                  uiOutput("mvalue")
                 )
               )
             ),
             tabPanel(
-              title = "Variation",
-              verbatimTextOutput("questionforV"),
-              # tags$style(
-              #   type = 'text/css',
-              #   '#questionforV {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
-              #   ),
+              title = "Variation", inputID = 'ace',
+              tags$strong(uiOutput("questionforV")),
+              br(),
               fluidRow(
-                column(
-                  12,
-                  #show how many plots user can input
-                  verbatimTextOutput("diff2")
-                  #tags$style(type = 'text/css', '#diff2 {background-color: white;}')
-                  )), 
-              fluidRow(
-                column(
-                  6,
-                  verbatimTextOutput("iqr2")
-                  #tags$style(type = 'text/css', '#iqr2 {background-color: white;}')
+                column(1,
+                       bsButton(
+                         inputId = "hints",
+                         label = "Hint",
+                         type = 'toggle',
+                         size = "medium")
                 ),
                 column(
-                  6,
-                  verbatimTextOutput("sd2")
-                  #tags$style(type = 'text/css', '#sd2 {background-color: white;}')
+                  2,
+                  uiOutput("iqr2")
+                ),
+                column(
+                  2,
+                  uiOutput("sd2")
                 )
               )
             ),
             tabPanel(
               title = "Random",
-              verbatimTextOutput("questionforR"),
-              # tags$style(
-              #   type = 'text/css',
-              #   '#questionforR {font-weight:bold; font-family:Arial ;font-size: 20px;background-color: #EAF2F8; color: black;}'
-              #   ),
+              tags$strong(uiOutput("questionforR")),
+              br(),
               fluidRow(
-                column(12,
-                       #show how many plots user can input
-                       verbatimTextOutput("diff3")
-                       #tags$style(type = 'text/css', '#diff3 {background-color: white;}')
-                       )),
-              fluidRow(
-                column(
-                  4,
-                  #tags$style(type = 'text/css', '#mean3 {background-color: white;}'),
-                  verbatimTextOutput("mean3")
+                column(1,
+                       bsButton(
+                         inputId = "hints",
+                         label = "Hint",
+                         type = 'toggle',
+                         size = "medium")
                 ),
                 column(
-                  4,
-                  #tags$style(type = 'text/css', '#meanvalue1 {background-color: white;}'),
-                  verbatimTextOutput("meanvalue1")
+                  3,
+                  uiOutput("mean3")
                 ),
                 column(
-                  4,
-                  #tags$style(type = 'text/css', '#mvalue4 {background-color: white;}'),
-                  verbatimTextOutput("mvalue4")
+                  2,
+                  uiOutput("meanvalue1")
                 ),
                 column(
-                  6,
-                  #tags$style(type = 'text/css', '#iqr3 {background-color: white;}'),
-                  verbatimTextOutput("iqr3")
+                  2,
+                  uiOutput("mvalue4")
                 ),
                 column(
-                  6,
-                  #tags$style(type = 'text/css', '#sd3 {background-color: white;}'),
-                  verbatimTextOutput("sd3")
+                  2,
+                  uiOutput("iqr3")
+                ),
+                column(
+                  2,
+                  uiOutput("sd3")
                 )
               )
               )
             ),
+          br(),
           fluidRow(
           column(
             1,
@@ -262,43 +216,35 @@ ui <- dashboardPage(
             1, offset = 5,
             actionButton("clear", "Clear Points")
             )
-          )
-        ),
+          ),
+          fluidRow(
+            column(12,
+                   #show how many plots user can input
+                   uiOutput("feedback")
+                  )
+          ),
         fluidRow(# Create a space for the plot output
           column(
             10,
-            plotOutput("clusterPlot1", "100%", "500px", click = "clusterClick")
+            plotOutput(outputId = "clusterPlot1", width = "100%", height = "500px", click = "clusterClick")
           ),
           column(
             2,
             br(), br(), # to fit the height on both plot and hintboxes
             conditionalPanel("input.hints != 0 ", id = 'hintbox',
               checkboxInput("median", "Median", FALSE),
-              #div(
-                p("Blue vertical Line"),
-                    #, style = "color:blue"),
-                  #style = 'margin-top:-15px;'),
+              p("Blue vertical line", class = "bluetext"),
               br(),
               checkboxInput("mean", "Mean", FALSE),
-              #div(
-                p("Red vertical Line"),
-                  #, style = "color:red"),
-                  #style = 'margin-top:-15px;'),
+              p("Red vertical line", class = "redtext"),
               br(),
               checkboxInput("iqr", "IQR", FALSE),
-              #div(
-                p("Blue horizontal Line"),
-               #, style = "color:blue"),
-                  #style = 'margin-top:-15px;'),
+              p("Blue horizontal line", class = "bluetext"),
               br(),
               checkboxInput("sd", "Std Dev", FALSE),
-              #div(
-                p("Red horizontal Line")
-                #, style = "color:red"),
-                  #style = 'margin-top:-15px;')
+              p("Red horizontal line", class = "redtext")
             )
           ))
-      )
     ),
     tabItem(
       tabName = "References",
@@ -329,7 +275,7 @@ ui <- dashboardPage(
       ),
       p(     #reference for ideas
         class = "hangingindent",
-        " Statistical Applets (n.d.), Available from
+        " Statistical Applets - Mean and Median (n.d.), Available from
           http://digitalfirst.bfwpub.com/stats_applet/generic_stats_applet_6_meanmed.html"
       )
       )

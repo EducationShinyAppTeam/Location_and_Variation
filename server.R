@@ -13,9 +13,11 @@ server <- function(input, output, session) {
       val$y <- c(val$y, input$clusterClick$y)
     })
   })
+  b <- reactiveValues(right = c(sample(1:7, 1)))
   c <- reactiveValues(right = c(sample(1:7, 1)))
   d <- reactiveValues(right = c(sample(1:14, 1)))
   observeEvent(input$bs, {
+    b$right = sample(1:7, 1)
     c$right = sample(1:7, 1)
     d$right = sample(1:14, 1)
   })
@@ -32,47 +34,45 @@ server <- function(input, output, session) {
       val$y <- NULL
     }
   })
+  observeEvent(input$info,{
+    sendSweetAlert(
+      session = session,
+      title = "Instructions:",
+      text = tags$ol(
+        tags$li("Create points by clicking in the plot to add points and see results until you have 15 points total."),
+        tags$li("Use the hint boxes on the top left corner if you need."),
+        tags$li("Click Clear Points to restart and New Challenge .")
+      ),
+      type = "info"
+    )
+  })
   observeEvent(input$nextbutton, {
     updateTabItems(session, "tabs", "prerequisite1")
   })
   observeEvent(input$start, {
     updateTabItems(session, "tabs", "game")
   })
-  # observeEvent(input$inst1, {
-  #   sendSweetAlert(
-  #     session = session,
-  #     title = "Instruction:",
-  #     type = "info",
-  #     tags$ol(
-  #       tags$li('Select the Location, Variation, or Random challenge to start the game.'),
-  #       tags$li('Create points by clicking in the plot to add points and watch your results until you have 15 points total.'),
-  #       tags$li('Show summary statistics as you go along by checking the corresponding box.'),
-  #       tags$li('There will be a message showing your results on the top of the plot.'),
-  #       tags$li('Click Clear Points and click New Challenge to start over.')
-  #             )
-  #     )
-  # })
   # 'Location' question
   output$questionforL <- renderText({
-    if (c$right == 1) {
+    if (b$right == 1) {
       "Challenge: Please use 15 points to make them roughly symmetric."
     }
-    else if (c$right == 2) {
+    else if (b$right == 2) {
       "Challenge: Please use 15 points to make them left skewed."
     }
-    else if (c$right == 3) {
+    else if (b$right == 3) {
       "Challenge: Please use 15 points to make the median less than 1 and the mean greater than 4."
     }
-    else if (c$right == 4) {
+    else if (b$right == 4) {
       "Challenge: Please use 15 points to make the median greater than 9.5 and the mean less than 6."
     }
-    else if (c$right == 5) {
+    else if (b$right == 5) {
       "Challenge: Please use 15 points to make the absolute difference between the mean and median at least 2."
     }
-    else if (c$right == 6) {
+    else if (b$right == 6) {
       "Challenge: Please use 15 points to make them right skewed."
     }
-    else if (c$right == 7) {
+    else if (b$right == 7) {
       "Challenge: Please use 15 points to make the mean greater than median."
     }
   })
@@ -203,81 +203,81 @@ server <- function(input, output, session) {
         ylim = c(0, 15),
         xlab = "X",
         ylab = "Frequency",
-        cex = 2.5,
-        cex.axis = 1.5,
+        cex = 1.5,
+        cex.lab = 1.5,
         pch = 16
       )
       output$meanvalue <- renderText({
         if (length(val$x) < 15 &
             length(val$x) >= 1  & input$median   == "TRUE") {
-          paste("median:", signif(median(val$x), digits = 3))
+          paste("median:", signif(median(val$x), digits = 2))
         }
         else if (length(val$x) >= 15 & input$median   == "TRUE") {
-          paste("median:", signif(median(store1[, 1]), digits = 3))
+          paste("median:", signif(median(store1[, 1]), digits = 2))
         }
       })
       output$meanvalue1 <- renderText({
         if (length(val$x) < 15 &
             length(val$x) >= 1  & input$median   == "TRUE") {
-          paste("median:", signif(median(val$x), digits = 3))
+          paste("median:", signif(median(val$x), digits = 2))
         }
         else if (length(val$x) >= 15 & input$median   == "TRUE") {
-          paste("median:", signif(median(store1[, 1]), digits = 3))
+          paste("median:", signif(median(store1[, 1]), digits = 2))
         }
       })
       if (length(val$x) < 15 &
           input$mean == "TRUE" & length(val$x) > 1) {
-        abline(v = (signif(mean(val$x), digits = 3)),
+        abline(v = (signif(mean(val$x), digits = 2)),
                col = "red",
                lwd = "4")
       }
       else if (length(val$x) >= 15 & input$mean == "TRUE")
       {
-        abline(v = (signif(mean(store1[, 1]), digits = 3)),
+        abline(v = (signif(mean(store1[, 1]), digits = 2)),
                col = "red",
                lwd = "4")
       }
       output$mvalue <- renderText({
         if (length(val$x) >= 1 &
             length(val$x) < 15 & input$mean == "TRUE") {
-          paste("mean:", signif(mean(val$x), digits = 3))
+          paste("mean:", signif(mean(val$x), digits = 2))
         }
         else if (length(val$x) >= 15 & input$mean == "TRUE") {
-          paste("mean:", signif(mean(store1[, 1]), digits = 3))
+          paste("mean:", signif(mean(store1[, 1]), digits = 2))
         }
       })
       output$mvalue4 <- renderText({
         if (length(val$x) >= 1 & length(val$x) < 15 & input$mean == "TRUE") {
-          paste("mean:", signif(mean(val$x), digits = 3))
+          paste("mean:", signif(mean(val$x), digits = 2))
         }
         else if (length(val$x) >= 15 & input$mean == "TRUE") {
-          paste("mean:", signif(mean(store1[, 1]), digits = 3))
+          paste("mean:", signif(mean(store1[, 1]), digits = 2))
         }
       })
       output$mean2 <- renderText({
         if (length(val$x) >= 2 &
             length(val$x) < 15 &
             input$mean == "TRUE" & input$median   == "TRUE") {
-          paste("Absolute Difference:", signif(abs(mean(val$x) - median(val$x)), digits = 3))
+          paste("Absolute difference:", signif(abs(mean(val$x) - median(val$x)), digits = 2))
         }
         else if (length(val$x) >= 15 &
                  input$mean == "TRUE" & input$median   == "TRUE")
         {
-          paste("Absolute Difference:", signif(abs(
+          paste("Absolute difference:", signif(abs(
             mean(store1[, 1]) - median(store1[, 1])
-          ), digits = 3))
+          ), digits = 2))
         }
       })
       output$mean3 <- renderText({
         if (length(val$x) >= 1 &
             length(val$x) < 15 &
             input$mean == "TRUE" & input$median   == "TRUE") {
-          paste("Absolute Difference:", signif(abs(mean(val$x) - median(val$x)), digits = 2))
+          paste("Absolute difference:", signif(abs(mean(val$x) - median(val$x)), digits = 2))
         }
         else if (length(val$x) >= 15 &
                  input$mean == "TRUE" & input$median   == "TRUE")
         {
-          paste("Absolute Difference:", signif(abs(
+          paste("Absolute difference:", signif(abs(
             mean(store1[, 1]) - median(store1[, 1])
           ), digits = 2))
         }
@@ -350,18 +350,18 @@ server <- function(input, output, session) {
       }
       output$iqr2 <- renderText({
         if (length(val$x) < 15 & input$iqr == "TRUE" & length(val$x) >= 2) {
-          paste("IQR:", signif(abs(IQR(val$x)), digits = 3))
+          paste("IQR:", signif(abs(IQR(val$x)), digits = 2))
         }
         else if (length(val$x) >= 15 & input$iqr == "TRUE") {
-          paste("IQR:", signif(abs(IQR(store1[, 1])), digits = 3))
+          paste("IQR:", signif(abs(IQR(store1[, 1])), digits = 2))
         }
       })
       output$iqr3 <- renderText({
         if (length(val$x) < 15 & input$iqr == "TRUE" & length(val$x) >= 2) {
-          paste("IQR:", signif(abs(IQR(val$x)), digits = 3))
+          paste("IQR:", signif(abs(IQR(val$x)), digits = 2))
         }
         else if (length(val$x) >= 15 & input$iqr == "TRUE") {
-          paste("IQR:", signif(abs(IQR(store1[, 1])), digits = 3))
+          paste("IQR:", signif(abs(IQR(store1[, 1])), digits = 2))
         }
       })
       if (length(val$x) < 15 &
@@ -414,111 +414,116 @@ server <- function(input, output, session) {
       # feedback function telling to user how many points left
       tellMePoints <- function() {
         if (length(val$x) == 14) {
-          "You still need to plot one point"
+          paste0("You still need to plot ", tags$strong("one"), " point.")
         }
         else if (length(val$x) == 13) {
-          "You still need to plot 2 points"
+          paste0("You still need to plot ", tags$strong("2"), " points.")
         }
         else if (length(val$x) == 12) {
-          "You still need to plot 3 points"
+          paste0("You still need to plot ", tags$strong("3"), " points.")
         }
         else if (length(val$x) == 11) {
-          "You still need to plot 4 points"
+          paste0("You still need to plot ", tags$strong("4"), " points.")
         }
         else  if (length(val$x) == 10) {
-          "You still need to plot 5 points"
+          paste0("You still need to plot ", tags$strong("5"), " points.")
         }
         else  if (length(val$x) == 9) {
-          "You still need to plot 6 points"
+          paste0("You still need to plot ", tags$strong("6"), " points.")
         }
         else   if (length(val$x) == 8) {
-          "You still need to plot 7 points"
+          paste0("You still need to plot ", tags$strong("7"), " points.")
         }
         else if (length(val$x) == 7) {
-          "You still need to plot 8 points"
+          paste0("You still need to plot ", tags$strong("8"), " points.")
         }
         else  if (length(val$x) == 6) {
-          "You still need to plot 9 points"
+          paste0("You still need to plot ", tags$strong("9"), " points.")
         }
         else  if (length(val$x) == 5) {
-          "You still need to plot 10 points"
+          paste0("You still need to plot ", tags$strong("10"), " points.")
         }
         else if (length(val$x) == 4) {
-          "You still need to plot 11 points"
+          paste0("You still need to plot ", tags$strong("11"), " points.")
         }
         else  if (length(val$x) == 3) {
-          "You still need to plot 12 points"
+          paste0("You still need to plot ", tags$strong("12"), " points.")
         }
         else   if (length(val$x) == 2) {
-          "You still need to plot 13 points"
+          paste0("You still need to plot ", tags$strong("13"), " points.")
         }
         else  if (length(val$x) == 1) {
-          "You still need to plot 14 points"
+          paste0("You still need to plot ", tags$strong("14"), " points.")
         }
       }
       # feedback for 'Location' question
-      output$diff1 <- renderText({
-        if (c$right == 1) {
+      output$feedback <- renderText({
+        if (b$right == 1) {
           #clicked points are greater and equal than 15
           if (length(val$x) >= 15) {
             if (signif(median(store1[, 1]), digits = 2) == signif(mean(store1[, 1]), 2)) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median of a symmetic distribution."
+              paste0("Sorry, Please click Clear Points and try again. 
+                     \nHint: think about the relation of mean and median of a symmetic distribution.")
             }
           }
           else {
             tellMePoints()
           }
         }
-        else if (c$right == 2) {
+        else if (b$right == 2) {
           if (length(val$x) >= 15) {
             if ((signif(median(store1[, 1]), digits = 2) > signif(mean(store1[, 1]), 2))) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median."
+              paste0("Sorry, Please click Clear Points and try again. 
+                     \nHint: think about the relation of mean and median.")
             }
           }
           else {
             tellMePoints()
           }
         }
-        else if (c$right == 3) {
+        else if (b$right == 3) {
           if (length(val$x) >= 15) {
             if (signif(median(val$x), digits = 2) < 1 &&
                 (signif(mean(val$x) > 4, digits = 2))) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check mean and median by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                     \nHint: you can check mean and median from the hint box.")
             }
           }
           else {
             tellMePoints()
           }
         }
-        else if (c$right == 4) {
+        else if (b$right == 4) {
           if (length(val$x) >= 15) {
             if (median(store1[, 1]) > 9.5 && mean(store1[, 1]) < 6) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check mean and median by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                     \nHint: you can check mean and median from the hint box.")
             }
           }
           else {
             tellMePoints()
           }
         }
-        else if (c$right == 5) {
+        else if (b$right == 5) {
           if (length(val$x) >= 15) {
             if (abs(median(store1[, 1]) - mean(store1[, 1])) > 2) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: You can check mean and median boxes to see the current difference."
+              paste0("Sorry, Please click Clear Points and try again. 
+                     \nHint: You can see mean and median from the hint box to see the current difference.")
             }
           }
           else {
@@ -526,42 +531,42 @@ server <- function(input, output, session) {
           }
         }
         
-        else if (c$right == 6) {
+        else if (b$right == 6) {
           if (length(val$x) >= 15) {
             if ((signif(median(store1[, 1]), digits = 2) < signif(mean(store1[, 1]), 2))) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median."
+              paste0("Sorry, Please click Clear Points and try again. 
+                     \nHint: think about the relation of mean and median.")
             }
           }
           else {
             tellMePoints()
           }
         }
-        else if (c$right == 7) {
+        else if (b$right == 7) {
           if (length(val$x) >= 15) {
             if ((signif(median(store1[, 1]), digits = 2) < signif(mean(store1[, 1]), 2))) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about left-skewed or right-skewed"
+              paste0("Sorry, Please click Clear Points and try again. 
+                     \nHint: think about left-skewed or right-skewed")
             }
           }
           else {
             tellMePoints()
           }
         }
-      })
-      # feedback for 'Variation' question
-      output$diff2 <- renderText({
         if (c$right == 1) {
           if (length(val$x) >= 15) {
             if (sd(store1[, 1]) > 3 && IQR(store1[, 1]) > 3) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: you can check SD and IQR from the hint box.")
             }
           }
           else {
@@ -571,10 +576,11 @@ server <- function(input, output, session) {
         else if (c$right == 2) {
           if (length(val$x) >= 15) {
             if (signif(sd(store1[, 1]), digits = 2) < signif(IQR(store1[, 1]), digits = 2)) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: think about the variation of the points.")
             }
           }
           else {
@@ -584,15 +590,15 @@ server <- function(input, output, session) {
         else if (c$right == 3) {
           if (length(val$x) >= 15) {
             if (sd(store1[, 1]) < 1 && IQR(store1[, 1]) < 1) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
               if (sd(store1[, 1]) < 1 &&  IQR(store1[, 1]) > 1) {
-                "Sorry, IQR is more than 1. Please click Clear Points and try again."
+                paste0("Sorry, IQR is more than 1. Please click Clear Points and try again.")
               }
               else if (sd(store1[, 1]) > 1 &&
                        IQR(store1[, 1]) < 1) {
-                "Sorry, SD is more than 1. Please click Clear Points and try again."
+                paste0("Sorry, SD is more than 1. Please click Clear Points and try again.")
               }
             }
           }
@@ -604,10 +610,11 @@ server <- function(input, output, session) {
           if (length(val$x) >= 15) {
             if (signif(IQR(store1[, 1]), digits = 2) == 0 &&
                 signif(sd(store1[, 1]) > 1, digits = 2)) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: think about the variation of the points.")
             }
           }
           else {
@@ -617,10 +624,11 @@ server <- function(input, output, session) {
         else if (c$right == 5) {
           if (length(val$x) >= 15) {
             if (signif(sd(store1[, 1]) == 0, digits = 1)) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: think about the variation of the points.")
             }
           }
           else {
@@ -630,10 +638,11 @@ server <- function(input, output, session) {
         else if (c$right == 6) {
           if (length(val$x) >= 15) {
             if (signif(sd(store1[, 1]), digits = 2) > signif(IQR(store1[, 1]), digits = 2)) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: you can check SD and IQR from the hint box.")
             }
           }
           else {
@@ -643,15 +652,15 @@ server <- function(input, output, session) {
         else if (c$right == 7) {
           if (length(val$x) >= 15) {
             if (sd(store1[, 1]) < 2 && IQR(store1[, 1]) < 2) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
               if (sd(store1[, 1]) < 2 &&  IQR(store1[, 1]) > 2) {
-                "Sorry, IQR is more than 2. Please click Clear Points and try again."
+                paste0("Sorry, IQR is more than 2. Please click Clear Points and try again.")
               }
               else if (sd(store1[, 1]) > 2 &&
                        IQR(store1[, 1]) < 2) {
-                "Sorry, SD is more than 2. Please click Clear Points and try again."
+                paste0("Sorry, SD is more than 2. Please click Clear Points and try again.")
               }
             }
           }
@@ -659,16 +668,14 @@ server <- function(input, output, session) {
             tellMePoints()
           }
         }
-      })
-      # feedback for 'Random' question
-      output$diff3 <- renderText({
         if (d$right == 1) {
           if (length(val$x) >= 15) {
             if (abs(signif(median(store1[, 1]), digits = 2) == signif(mean(store1[, 1]), digits = 2))) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median of a symmetic distribution."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: think about the relation of mean and median of a symmetic distribution.")
             }
           }
           else {
@@ -678,10 +685,11 @@ server <- function(input, output, session) {
         else if (d$right == 2) {
           if (length(val$x) >= 15) {
             if ((signif(median(store1[, 1]), digits = 2) > signif(mean(store1[, 1]), 2))) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the relation of mean and median."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: think about the relation of mean and median.")
             }
           }
           else {
@@ -691,10 +699,11 @@ server <- function(input, output, session) {
         else if (d$right == 3) {
           if (length(val$x) >= 15) {
             if (median(val$x) < 1 && mean(val$x) > 4) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check mean and median by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: you can check mean and median from the hint box.")
             }
           }
           else {
@@ -704,10 +713,11 @@ server <- function(input, output, session) {
         else if (d$right == 4) {
           if (length(val$x) >= 15) {
             if (median(store1[, 1]) > 9.5 && mean(store1[, 1]) < 6) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check mean and median by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: you can check mean and median from the hint box.")
             }
           }
           else {
@@ -717,10 +727,11 @@ server <- function(input, output, session) {
         else if (d$right == 5) {
           if (length(val$x) >= 15) {
             if (abs(median(store1[, 1]) - mean(store1[, 1])) > 2) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: You can check mean and median boxes to see the current difference."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: You can see mean and median from the hint box to see the current difference.")
             }
           }
           else {
@@ -730,10 +741,11 @@ server <- function(input, output, session) {
         else if (d$right == 6) {
           if (length(val$x) >= 15) {
             if (sd(store1[, 1]) > 3 && IQR(store1[, 1]) > 3) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: you can check SD and IQR from the hint box.")
             }
           }
           else {
@@ -743,10 +755,11 @@ server <- function(input, output, session) {
         else if (d$right == 7) {
           if (length(val$x) >= 15) {
             if (signif(sd(store1[, 1]), digits = 2) < signif(IQR(store1[, 1]), digits = 2)) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: you can check SD and IQR from the hint box.")
             }
           }
           else {
@@ -756,15 +769,15 @@ server <- function(input, output, session) {
         else if (d$right == 8) {
           if (length(val$x) >= 15) {
             if (sd(store1[, 1]) < 1 && IQR(store1[, 1]) < 1) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
               if (sd(store1[, 1]) < 1 &&  IQR(store1[, 1]) > 1) {
-                "Sorry, IQR is more than 1. Please click Clear Points and try again."
+                paste0("Sorry, IQR is more than 1. Please click Clear Points and try again.")
               }
               else if (sd(store1[, 1]) > 1 &&
                        IQR(store1[, 1]) < 1) {
-                "Sorry, SD is more than 1. Please click Clear Points and try again."
+                paste0("Sorry, SD is more than 1. Please click Clear Points and try again.")
               }
             }
           }
@@ -776,10 +789,11 @@ server <- function(input, output, session) {
           if (length(val$x) >= 15) {
             if (signif(IQR(store1[, 1]) == 0, digits = 1) &&
                 sd(store1[, 1]) > 1) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: think about the variation of the points.")
             }
           }
           else {
@@ -789,10 +803,11 @@ server <- function(input, output, session) {
         else if (d$right == 10) {
           if (length(val$x) >= 15) {
             if (signif(sd(store1[, 1]) == 0, digits = 1)) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about the variation of the points."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: think about the variation of the points.")
             }
           }
           else {
@@ -803,10 +818,11 @@ server <- function(input, output, session) {
         else if (d$right == 11) {
           if (length(val$x) >= 15) {
             if ((signif(median(store1[, 1]), digits = 2) < signif(mean(store1[, 1]), 2))) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: you can check SD and IQR from the hint box.")
             }
           }
           else {
@@ -816,10 +832,11 @@ server <- function(input, output, session) {
         else if (d$right == 12) {
           if (length(val$x) >= 15) {
             if (signif(sd(store1[, 1])) > signif(IQR(store1[, 1]))) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: you can check SD and IQR by clicking the boxes on the top."
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: you can check SD and IQR from the hint box.")
             }
           }
           else {
@@ -829,10 +846,11 @@ server <- function(input, output, session) {
         else if (d$right == 13) {
           if (length(val$x) >= 15) {
             if ((signif(median(store1[, 1]), digits = 2) < signif(mean(store1[, 1]), 2))) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
-              "Sorry, Please click Clear Points and try again. \nHint: think about left-skewed or right-skewed"
+              paste0("Sorry, Please click Clear Points and try again. 
+                      \nHint: think about left-skewed or right-skewed")
             }
           }
           else {
@@ -842,15 +860,15 @@ server <- function(input, output, session) {
         else if (d$right == 7) {
           if (length(val$x) >= 15) {
             if (sd(store1[, 1]) < 2 && IQR(store1[, 1]) < 2) {
-              "Congratulations,you are right !"
+              paste0("Congratulations, you are right!")
             }
             else{
               if (sd(store1[, 1]) < 2 &&  IQR(store1[, 1]) > 2) {
-                "Sorry, IQR is more than 2. Please click Clear Points and try again."
+                paste0("Sorry, IQR is more than 2. Please click Clear Points and try again.")
               }
               else if (sd(store1[, 1]) > 2 &&
                        IQR(store1[, 1]) < 2) {
-                "Sorry, SD is more than 2. Please click Clear Points and try again."
+                paste0("Sorry, SD is more than 2. Please click Clear Points and try again.")
               }
             }
           }
