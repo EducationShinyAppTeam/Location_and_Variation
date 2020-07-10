@@ -2,6 +2,7 @@ library(shinydashboard)
 library(shiny)
 library(shinyBS)
 library(boastUtils)
+library(shinyWidgets)
 #Let`s begin
 ui <- dashboardPage(
   skin = "yellow",
@@ -65,12 +66,12 @@ ui <- dashboardPage(
       h2("Acknowledgements"),
       p(
         "This app was originally developed and coded by Caihui Xiao. The app was further updated by 
-        Zhiliang Zhang and Jiajun Gao in June 2018, and by Daehoon Gwak in June 2020.
+        Zhiliang Zhang and Jiajun Gao in June 2018, and by Daehoon Gwak in July 2020.
         Special thanks to Sitong Liu for helping with some programming issues.",
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 07/01/2020 by DG.")
+        div(class = "updated", "Last Update: 07/05/2020 by DG.")
       )
     ),
     ##Second tab - Prerequisites tab 
@@ -147,7 +148,18 @@ ui <- dashboardPage(
                   2, 
                   uiOutput("mvalue")
                 )
-              )
+              ), br(),
+              fluidRow(
+                column(
+                  1,
+                  actionButton("bs2", "New Challenge")
+                ),
+                column(
+                  1, offset = 5,
+                  actionButton("clear2", "Clear Points")
+                )
+              ), br(),
+              uiOutput("feedback1")
             ),
             tabPanel(
               title = "Variation", inputID = 'ace',
@@ -169,7 +181,18 @@ ui <- dashboardPage(
                   2,
                   uiOutput("sd2")
                 )
-              )
+              ), br(),
+              fluidRow(
+                column(
+                  1,
+                  actionButton("bs1", "New Challenge")
+                ),
+                column(
+                  1, offset = 5,
+                  actionButton("clear1", "Clear Points")
+                )
+              ), br(),
+              uiOutput("feedback2")
             ),
             tabPanel(
               title = "Random",
@@ -203,26 +226,20 @@ ui <- dashboardPage(
                   2,
                   uiOutput("sd3")
                 )
-              )
+              ), br(),
+              fluidRow(
+                column(
+                  1,
+                  actionButton("bs3", "New Challenge")
+                ),
+                column(
+                  1, offset = 5,
+                  actionButton("clear3", "Clear Points")
+                )
+              ), br(),
+              uiOutput("feedback3")
               )
             ),
-          br(),
-          fluidRow(
-          column(
-            1,
-            actionButton("bs", "New Challenge")
-          ),
-          column(
-            1, offset = 5,
-            actionButton("clear", "Clear Points")
-            )
-          ),
-          fluidRow(
-            column(12,
-                   #show how many plots user can input
-                   uiOutput("feedback")
-                  )
-          ),
         fluidRow(# Create a space for the plot output
           column(
             10,
@@ -272,6 +289,13 @@ ui <- dashboardPage(
         "Chang, W., Cheng, J., Allaire, J., Xie, Y., and McPherson, J.
             (2019), shiny: Web application framework for R. (v1.4.0),
             [R Package]. Available from https://CRAN.R-project.org/package=shiny"
+      ),
+      p(     #shinyWidgets
+        class = "hangingindent",
+        "Perrier, V., Meyer, F., Granjon, D., Fellows, I., and Davis, W.
+            (2020), shinyWidgets: Custom Inputs Widgets for Shiny
+            (v0.5.2), [R package]. Available from
+            https://cran.r-project.org/web/packages/shinyWidgets/index.html"
       ),
       p(     #reference for ideas
         class = "hangingindent",

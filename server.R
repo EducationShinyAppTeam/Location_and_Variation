@@ -16,20 +16,46 @@ server <- function(input, output, session) {
   b <- reactiveValues(right = c(sample(1:7, 1)))
   c <- reactiveValues(right = c(sample(1:7, 1)))
   d <- reactiveValues(right = c(sample(1:14, 1)))
-  observeEvent(input$bs, {
+  observeEvent(input$bs1, {
+    b$right = sample(1:7, 1)
+    c$right = sample(1:7, 1)
+    d$right = sample(1:14, 1)
+  })
+  observeEvent(input$bs2, {
+    b$right = sample(1:7, 1)
+    c$right = sample(1:7, 1)
+    d$right = sample(1:14, 1)
+  })
+  observeEvent(input$bs3, {
     b$right = sample(1:7, 1)
     c$right = sample(1:7, 1)
     d$right = sample(1:14, 1)
   })
   observe({
-    if (input$bs >= 0) {
+    if (input$bs1 >= 0) {
+      val$x <- NULL
+      val$y <- NULL
+    }
+    if (input$bs2 >= 0) {
+      val$x <- NULL
+      val$y <- NULL
+    }
+    if (input$bs3 >= 0) {
       val$x <- NULL
       val$y <- NULL
     }
   })
   # Clear the points on 'clear' button click
   observe({
-    if (input$clear >= 0) {
+    if (input$clear1 >= 0) {
+      val$x <- NULL
+      val$y <- NULL
+    }
+    if (input$clear2 >= 0) {
+      val$x <- NULL
+      val$y <- NULL
+    }
+    if (input$clear3 >= 0) {
       val$x <- NULL
       val$y <- NULL
     }
@@ -43,7 +69,8 @@ server <- function(input, output, session) {
         tags$li("Use the hint boxes on the top left corner if you need."),
         tags$li("Click Clear Points to restart and New Challenge .")
       ),
-      type = "info"
+      type = "info",
+      btn_colors = "orange"
     )
   })
   observeEvent(input$nextbutton, {
@@ -210,62 +237,62 @@ server <- function(input, output, session) {
       output$meanvalue <- renderText({
         if (length(val$x) < 15 &
             length(val$x) >= 1  & input$median   == "TRUE") {
-          paste("median:", signif(median(val$x), digits = 2))
+          paste("median:", signif(median(val$x), digits = 3))
         }
         else if (length(val$x) >= 15 & input$median   == "TRUE") {
-          paste("median:", signif(median(store1[, 1]), digits = 2))
+          paste("median:", signif(median(store1[, 1]), digits = 3))
         }
       })
       output$meanvalue1 <- renderText({
         if (length(val$x) < 15 &
             length(val$x) >= 1  & input$median   == "TRUE") {
-          paste("median:", signif(median(val$x), digits = 2))
+          paste("median:", signif(median(val$x), digits = 3))
         }
         else if (length(val$x) >= 15 & input$median   == "TRUE") {
-          paste("median:", signif(median(store1[, 1]), digits = 2))
+          paste("median:", signif(median(store1[, 1]), digits = 3))
         }
       })
       if (length(val$x) < 15 &
           input$mean == "TRUE" & length(val$x) > 1) {
-        abline(v = (signif(mean(val$x), digits = 2)),
+        abline(v = (signif(mean(val$x), digits = 3)),
                col = "red",
                lwd = "4")
       }
       else if (length(val$x) >= 15 & input$mean == "TRUE")
       {
-        abline(v = (signif(mean(store1[, 1]), digits = 2)),
+        abline(v = (signif(mean(store1[, 1]), digits = 3)),
                col = "red",
                lwd = "4")
       }
       output$mvalue <- renderText({
         if (length(val$x) >= 1 &
             length(val$x) < 15 & input$mean == "TRUE") {
-          paste("mean:", signif(mean(val$x), digits = 2))
+          paste("mean:", signif(mean(val$x), digits = 3))
         }
         else if (length(val$x) >= 15 & input$mean == "TRUE") {
-          paste("mean:", signif(mean(store1[, 1]), digits = 2))
+          paste("mean:", signif(mean(store1[, 1]), digits = 3))
         }
       })
       output$mvalue4 <- renderText({
         if (length(val$x) >= 1 & length(val$x) < 15 & input$mean == "TRUE") {
-          paste("mean:", signif(mean(val$x), digits = 2))
+          paste("mean:", signif(mean(val$x), digits = 3))
         }
         else if (length(val$x) >= 15 & input$mean == "TRUE") {
-          paste("mean:", signif(mean(store1[, 1]), digits = 2))
+          paste("mean:", signif(mean(store1[, 1]), digits = 3))
         }
       })
       output$mean2 <- renderText({
         if (length(val$x) >= 2 &
             length(val$x) < 15 &
             input$mean == "TRUE" & input$median   == "TRUE") {
-          paste("Absolute difference:", signif(abs(mean(val$x) - median(val$x)), digits = 2))
+          paste("Absolute difference:", signif(abs(mean(val$x) - median(val$x)), digits = 3))
         }
         else if (length(val$x) >= 15 &
                  input$mean == "TRUE" & input$median   == "TRUE")
         {
           paste("Absolute difference:", signif(abs(
             mean(store1[, 1]) - median(store1[, 1])
-          ), digits = 2))
+          ), digits = 3))
         }
       })
       output$mean3 <- renderText({
@@ -350,18 +377,18 @@ server <- function(input, output, session) {
       }
       output$iqr2 <- renderText({
         if (length(val$x) < 15 & input$iqr == "TRUE" & length(val$x) >= 2) {
-          paste("IQR:", signif(abs(IQR(val$x)), digits = 2))
+          paste("IQR:", signif(abs(IQR(val$x)), digits = 3))
         }
         else if (length(val$x) >= 15 & input$iqr == "TRUE") {
-          paste("IQR:", signif(abs(IQR(store1[, 1])), digits = 2))
+          paste("IQR:", signif(abs(IQR(store1[, 1])), digits = 3))
         }
       })
       output$iqr3 <- renderText({
         if (length(val$x) < 15 & input$iqr == "TRUE" & length(val$x) >= 2) {
-          paste("IQR:", signif(abs(IQR(val$x)), digits = 2))
+          paste("IQR:", signif(abs(IQR(val$x)), digits = 3))
         }
         else if (length(val$x) >= 15 & input$iqr == "TRUE") {
-          paste("IQR:", signif(abs(IQR(store1[, 1])), digits = 2))
+          paste("IQR:", signif(abs(IQR(store1[, 1])), digits = 3))
         }
       })
       if (length(val$x) < 15 &
@@ -457,7 +484,7 @@ server <- function(input, output, session) {
         }
       }
       # feedback for 'Location' question
-      output$feedback <- renderText({
+      output$feedback1 <- renderText({
         if (b$right == 1) {
           #clicked points are greater and equal than 15
           if (length(val$x) >= 15) {
@@ -559,6 +586,8 @@ server <- function(input, output, session) {
             tellMePoints()
           }
         }
+      })
+        output$feedback2 <- renderText({
         if (c$right == 1) {
           if (length(val$x) >= 15) {
             if (sd(store1[, 1]) > 3 && IQR(store1[, 1]) > 3) {
@@ -668,6 +697,8 @@ server <- function(input, output, session) {
             tellMePoints()
           }
         }
+        })
+        output$feedback3 <- renderText({
         if (d$right == 1) {
           if (length(val$x) >= 15) {
             if (abs(signif(median(store1[, 1]), digits = 2) == signif(mean(store1[, 1]), digits = 2))) {
@@ -857,7 +888,7 @@ server <- function(input, output, session) {
             tellMePoints()
           }
         }
-        else if (d$right == 7) {
+        else if (d$right == 14) {
           if (length(val$x) >= 15) {
             if (sd(store1[, 1]) < 2 && IQR(store1[, 1]) < 2) {
               paste0("Congratulations, you are right!")
