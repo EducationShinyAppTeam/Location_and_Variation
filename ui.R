@@ -43,12 +43,14 @@ ui <- dashboardPage(
       br(),
       h2("Instructions"),
       tags$ol(
-        tags$li("Select the Location, Variation, or Random challenge before start."),
+        tags$li("In the game, you'll first need to select which challenge 
+                (Location, Variation, or Both)."),
         tags$li("Create points by clicking in the plot to add points 
                 and watch your results until you have 15 points total."),
-        tags$li("Show the summary statistics as you go along by clicking on the hint button 
-                and checking the summaries desired."),
-        tags$li("There will be a message showing your results on the top of the plot."),
+        tags$li("Show the summary statistics as you go along by clicking on 
+                the hint button and checking the summaries desired."),
+        tags$li("There will be a message showing your results 
+                on the top of the plot."),
         tags$li("Click Clear Points and click New Challenge to start over.")
       ),
       div(
@@ -65,13 +67,14 @@ ui <- dashboardPage(
       br(),
       h2("Acknowledgements"),
       p(
-        "This app was originally developed and coded by Caihui Xiao. The app was further updated by 
-        Zhiliang Zhang and Jiajun Gao in June 2018, and by Daehoon Gwak in July 2020.
+        "This app was originally developed and coded by Caihui Xiao. 
+        The app was further updated by Zhiliang Zhang and Jiajun Gao in 
+        June 2018, and by Daehoon Gwak in July 2020.
         Special thanks to Sitong Liu for helping with some programming issues.",
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 07/05/2020 by DG.")
+        div(class = "updated", "Last Update: 07/15/2020 by DG.")
       )
     ),
     ##Second tab - Prerequisites tab 
@@ -80,33 +83,59 @@ ui <- dashboardPage(
       withMathJax(),
       h2("Prerequisites"),
       br(),
-      tags$ol(
+      tags$ul(
         tags$li(
-          "The mean of a data set is the numerical average."
-          ),
+          # This is not the most productive meaning for the SAM but it is what
+          # this app supports.
+          "You can interpret the value of the ", 
+          tags$em("sample arithmetic mean"), " of a data set as being 
+          the balancing point of the data set when plotted. This value is 
+          commonly denoted as \\(\\overline{x}\\) or as
+          \\(SAM\\left(x_1,\\ldots,x_n\\right)\\)."
+        ),
         tags$li(
-          "The median of a data set is the 50th percentile (the middle value when the numbers are put in order."
-          ),
+          "You can interpret the value of the ", tags$em("sample median"), " of 
+          a data set as being the value that cuts the ordered data set into two 
+          equally sized subsets. This value is also known as the 50th percentile 
+          or the second quartile. There is no single symbol that represents this 
+          value; some of the more common ones include 
+          \\(Q_2\\), \\(\\widetilde{x}\\), 
+          and \\(Median\\left(x_1\\ldots,x_n\\right)\\)."
+        ),
         tags$li(
-          "The lower quartile (also called the first quartile and abbreviated as \\(Q_l\\)) is the 25th percentile in a data set. 
-          Thus, 25% of the values on the list of data would fall below \\(Q_l\\) and 75% would be larger than \\(Q_l\\)."
-          ),
+          "You can interpret the value of the ", tags$em("first quartile"),
+          " (a.k.a. the lower quartile or the 25th percentile) as being the 
+          value cuts off the smallest quarter (25%) of the ordered data set 
+          from the rest. Thus, 25% of the values in the data set will be 
+          smaller than this value and 75% would bethis value or larger. 
+          We often use \\(Q_1\\) to represent this value,sometimes \\(Q_l\\)."
+        ),
         tags$li(
-          "The upper quartile (also called the third quartile and abbreviated as \\(Q_u\\)) is the 75th percentile in a data set. 
-          Thus, 75% of the values on the list of data would fall below \\(Q_u\\) and 25% would be larger than \\(Q_u\\)."
-          ),
+          "You can interpret the value of the ", tags$em("third quartile"),
+          " (a.k.a. the upper quartile or the 75th percentile) as being the 
+          value cuts off the smallest three-quarters (75%) of the ordered 
+          data set from the rest. Thus, 75% of the values in the data set 
+          will be smaller than this value and 25% would be this value or larger.
+          We often use \\(Q_3\\) to represent this value, sometimes \\(Q_u\\)."
+        ),
         tags$li(
-          "The interquartile range (abbreviated as IQR) is the difference between the upper quartile 
-          and the lower quartile in a data set so \\(IQR = Q_u\\) - \\(Q_l\\). 
-          The IQR provides a resistant measure of the variability of a set of data."
-          ),
+          "The value of the ", tags$em("interquartile range"), " is a measure of 
+          variation found by looking at the distance between the values of the
+          first and third quartiles. This distance is the width of the smallest
+          interval that contains that middle 50% of the ordered data set. 
+          We often represent this value with the letters ", tags$em("IQR"), " 
+          and with the formula \\(IQR = Q_3-Q_1\\)."
+        ),
         tags$li(
-          "The standard deviation (SD) measures how far data values differ from the mean. 
-          If there was no variability, every measurement would be the same as all being the mean value
-          and the standard deviation would be zero. 
-          As a rule of thumb, about 68% of the values in a symmetric histogram come within one standard deviation of the mean."
-          )
-        ),br(),
+          "The value of the ", tags$em("sample"), "[", tags$em("arithmetic"),"] ",
+          tags$em("standard deviation"), " provides a measure for how the data 
+          values differ from the each other. If the observations did not vary, 
+          then each value would be the same and the value of this statistics 
+          would be zero. The most common ways to represent this value include 
+          \\(s\\), \\(s_x\\), and \\(SASD\\left(x_1,\\ldots,x_n\\right)\\)."
+        )
+      ),
+      br(),
       div(
         style = "text-align:center",
         bsButton(
@@ -121,7 +150,7 @@ ui <- dashboardPage(
     tabItem(
       tabName = "game",
         # Add a title
-        h2("Click Points for Location and Variation"),
+        h2("The Location and Variation Game"),
           tabsetPanel(
             type = "tabs",
             tabPanel(
@@ -162,7 +191,7 @@ ui <- dashboardPage(
               uiOutput("feedback1")
             ),
             tabPanel(
-              title = "Variation", inputID = 'ace',
+              title = "Variation",
               tags$strong(uiOutput("questionforV")),
               br(),
               fluidRow(
@@ -195,7 +224,7 @@ ui <- dashboardPage(
               uiOutput("feedback2")
             ),
             tabPanel(
-              title = "Random",
+              title = "Both",
               tags$strong(uiOutput("questionforR")),
               br(),
               fluidRow(
@@ -243,7 +272,15 @@ ui <- dashboardPage(
         fluidRow(# Create a space for the plot output
           column(
             10,
-            plotOutput(outputId = "clusterPlot1", width = "100%", height = "500px", click = "clusterClick")
+            plotOutput(outputId = "clusterPlot1", 
+                       tags$script(HTML(
+                       "$(document).ready(function() 
+                       { document.getElementById('clusterPlot1').
+                       setAttribute('aria-label',
+                       `User can create points to test their challenges`)
+                       })"
+                       )),
+                       width = "100%", height = "500px", click = "clusterClick")
           ),
           column(
             2,
