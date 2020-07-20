@@ -273,14 +273,14 @@ ui <- dashboardPage(
           column(
             10,
             plotOutput(outputId = "clusterPlot1", 
-                       tags$script(HTML(
-                       "$(document).ready(function() 
+                       width = "100%", height = "500px", click = "clusterClick"),
+            tags$script(HTML(
+              "$(document).ready(function() 
                        { document.getElementById('clusterPlot1').
                        setAttribute('aria-label',
                        `User can create points to test their challenges`)
                        })"
-                       )),
-                       width = "100%", height = "500px", click = "clusterClick")
+            ))
           ),
           column(
             2,
