@@ -1,5 +1,419 @@
+# Load Libraries ----
+library(shinydashboard)
+library(shiny)
+library(shinyBS)
 library(boastUtils)
-#Let`s begin
+library(shinyWidgets)
+
+## App Meta Data----------------------------------------------------------------
+APP_TITLE <<- "Location and Variation"
+APP_DESCP  <<- paste(
+  "This app provides set of challenges which allow a user to explore two common",
+  "measures of location (sample arithmetic mean and sample median) and two",
+  "common measures of variation (interquartile range and standard deviation."
+)
+## End App Meta Data------------------------------------------------------------
+
+
+# Define constants and functions ----
+
+# Define the UI ----
+ui <- list(
+  dashboardPage(
+    skin = "yellow",
+    dashboardHeader(
+      titleWidth = 250,
+      title = "Location and Variation",
+      tags$li(class = "dropdown",
+              actionLink("info",icon("info",class = "myClass"))),
+      tags$li(
+        class = 'dropdown',
+        tags$a(href = "https://shinyapps.science.psu.edu/",
+               icon('home', lib = 'font-awesome'))
+      )
+    ),
+    dashboardSidebar(
+      width = 250,
+      sidebarMenu(
+        id = "tabs",
+        menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
+        menuItem("Prerequisites", tabName = "prerequisite", icon = icon("book")),
+        menuItem("Challenge", tabName = "challenge", icon = icon("cogs")),
+        menuItem("References", tabName = "References", icon = icon("leanpub"))
+      ),
+      tags$div(class = "sidebar-logo",
+               boastUtils::psu_eberly_logo("reversed"))
+    ),
+    dashboardBody(
+      tags$head(
+        tags$link(rel = "stylesheet", type = "text/css",
+                  href = "https://educationshinyappteam.github.io/Style_Guide/theme/boast.css")
+      ),
+      tabItems(
+        ## Overview tab ----
+        tabItem(
+          tabName = "overview",
+          h1("Location and Variation"),
+          p("In this app, you will explore measures of location and variation."),
+          br(),
+          h2("Instructions"),
+          tags$ol(
+            tags$li("In the challenge, you'll first need to select which challenge
+                (Location, Variation, or Both)."),
+            tags$li("Create points by clicking in the plot to add points
+                and watch your results until you have 15 points total."),
+            tags$li("Show the summary statistics as you go along by clicking on
+                the hint button and checking the summaries desired."),
+            tags$li("There will be a message showing your results
+                on the top of the plot."),
+            tags$li("Click Clear Points and click New Challenge to start over.")
+          ),
+          div(
+            style = "text-align:center",
+            bsButton(
+              inputId = "nextbutton",
+              label = "GO!",
+              icon = icon("bolt"),
+              size = "large"
+            )
+          ),
+          #Acknowledgements
+          br(),
+          br(),
+          h2("Acknowledgements"),
+          p(
+            "This app was originally developed and coded by Caihui Xiao.
+        The app was further updated by Zhiliang Zhang and Jiajun Gao in
+        June 2018, and by Daehoon Gwak in July 2020.
+        Special thanks to Sitong Liu for helping with some programming issues.",
+            br(),
+            br(),
+            br(),
+            div(class = "updated", "Last Update: 09/8/2020 by NJH.")
+          )
+        ),
+        ##Prerequisites tab ----
+        tabItem(
+          tabName = "prerequisite",
+          withMathJax(),
+          h2("Prerequisites"),
+          br(),
+          tags$ul(
+            tags$li(
+              # This is not the most productive meaning for the SAM but it is what
+              # this app supports.
+              "You can interpret the value of the ",
+              tags$em("sample arithmetic mean"), " of a data set as being
+          the balancing point of the data set when plotted. This value is
+          commonly denoted as \\(\\overline{x}\\) or as
+          \\(SAM\\left(x_1,\\ldots,x_n\\right)\\)."
+            ),
+            tags$li(
+              "You can interpret the value of the ", tags$em("sample median"), " of
+          a data set as being the value that cuts the ordered data set into two
+          equally sized subsets. This value is also known as the 50th percentile
+          or the second quartile. There is no single symbol that represents this
+          value; some of the more common ones include
+          \\(Q_2\\), \\(\\widetilde{x}\\),
+          and \\(Median\\left(x_1\\ldots,x_n\\right)\\)."
+            ),
+            tags$li(
+              "You can interpret the value of the ", tags$em("first quartile"),
+              " (a.k.a. the lower quartile or the 25th percentile) as being the
+          value cuts off the smallest quarter (25%) of the ordered data set
+          from the rest. Thus, 25% of the values in the data set will be
+          smaller than this value and 75% would bethis value or larger.
+          We often use \\(Q_1\\) to represent this value,sometimes \\(Q_l\\)."
+            ),
+            tags$li(
+              "You can interpret the value of the ", tags$em("third quartile"),
+              " (a.k.a. the upper quartile or the 75th percentile) as being the
+          value cuts off the smallest three-quarters (75%) of the ordered
+          data set from the rest. Thus, 75% of the values in the data set
+          will be smaller than this value and 25% would be this value or larger.
+          We often use \\(Q_3\\) to represent this value, sometimes \\(Q_u\\)."
+            ),
+            tags$li(
+              "The value of the ", tags$em("interquartile range"), " is a measure of
+          variation found by looking at the distance between the values of the
+          first and third quartiles. This distance is the width of the smallest
+          interval that contains that middle 50% of the ordered data set.
+          We often represent this value with the letters ", tags$em("IQR"), "
+          and with the formula \\(IQR = Q_3-Q_1\\)."
+            ),
+            tags$li(
+              "The value of the ", tags$em("sample [arithmetic] standard deviation"),
+              " provides a measure for how the data values differ from the each
+              other. If the observations did not vary, then each value would be
+              the same and the value of this statistics would be zero. The most
+              common ways to represent this value include \\(s\\), \\(s_x\\),
+              and \\(SASD\\left(x_1,\\ldots,x_n\\right)\\)."
+            )
+          ),
+          br(),
+          div(
+            style = "text-align:center",
+            bsButton(
+              inputId = "start",
+              label = "GO!",
+              icon =  icon("bolt"),
+              size = "large"
+            )
+          )
+        ),
+        # Challenge tab ----
+        tabItem(
+          tabName = "challenge",
+          # Add a title
+          h2("The Location and Variation Challenge"),
+          tabsetPanel(
+            type = "tabs",
+            ### Location Tab ----
+            tabPanel(
+              title = "Location",
+              br(),
+              div(
+                class = "largerFont",
+                uiOutput("questionforL"),
+              ),
+              br(),
+              fluidRow(
+                column(1,
+                       bsButton(
+                         inputId = "hints1",
+                         label = "Hint",
+                         type = 'toggle',
+                         size = "large")
+                ),
+                column(
+                  3,
+                  uiOutput("mean2")
+                ),
+                column(
+                  2,
+                  uiOutput("meanvalue")
+                ),
+                column(
+                  2,
+                  uiOutput("mvalue")
+                )
+              ), br(),
+              fluidRow(
+                column(
+                  1,
+                  bsButton(
+                    inputId = "bs2",
+                    label = "New Challenge",
+                    style = "default",
+                    size = "large"
+                  )
+                ),
+                column(
+                  1, offset = 5,
+                  bsButton(
+                    inputId = "clear2",
+                    label = "Clear Points",
+                    style = "default",
+                    size = "large"
+                  )
+                )
+              ), br(),
+              uiOutput("feedback1")
+            ),
+            ### Variation Tab ----
+            tabPanel(
+              title = "Variation",
+              br(),
+              div(
+                class = "largerFont",
+                uiOutput("questionforV"),
+              ),
+              br(),
+              fluidRow(
+                column(1,
+                       bsButton(
+                         inputId = "hints2",
+                         label = "Hint",
+                         type = 'toggle',
+                         size = "large")
+                ),
+                column(
+                  2,
+                  uiOutput("iqr2")
+                ),
+                column(
+                  2,
+                  uiOutput("sd2")
+                )
+              ), br(),
+              fluidRow(
+                column(
+                  1,
+                  bsButton(
+                    inputId = "bs1",
+                    label = "New Challenge",
+                    style = "default",
+                    size = "large"
+                  )
+                ),
+                column(
+                  1, offset = 5,
+                  bsButton(
+                    inputId = "clear1",
+                    label = "Clear Points",
+                    style = "default",
+                    size = "large"
+                  )
+                )
+              ), br(),
+              uiOutput("feedback2")
+            ),
+            ### Both Tab ----
+            tabPanel(
+              title = "Both",
+              br(),
+              div(
+                class = "largerFont",
+                uiOutput("questionforR"),
+              ),
+              br(),
+              fluidRow(
+                column(1,
+                       bsButton(
+                         inputId = "hints3",
+                         label = "Hint",
+                         type = 'toggle',
+                         size = "large")
+                ),
+                column(
+                  3,
+                  uiOutput("mean3")
+                ),
+                column(
+                  2,
+                  uiOutput("meanvalue1")
+                ),
+                column(
+                  2,
+                  uiOutput("mvalue4")
+                ),
+                column(
+                  2,
+                  uiOutput("iqr3")
+                ),
+                column(
+                  2,
+                  uiOutput("sd3")
+                )
+              ), br(),
+              fluidRow(
+                column(
+                  1,
+                  bsButton(
+                    inputId = "bs3",
+                    label = "New Challenge",
+                    style = "default",
+                    size = "large"
+                  )
+                ),
+                column(
+                  1, offset = 5,
+                  bsButton(
+                    inputId = "clear3",
+                    label = "Clear Points",
+                    style = "default",
+                    size = "large"
+                  )
+                )
+              ), br(),
+              uiOutput("feedback3")
+            )
+          ), #Closes tabsetpanel
+          fluidRow(# Create a space for the plot output
+            column(
+              10,
+              plotOutput(outputId = "clusterPlot1",
+                         width = "100%", height = "500px", click = "clusterClick"),
+              tags$script(HTML(
+                "$(document).ready(function()
+                       { document.getElementById('clusterPlot1').
+                       setAttribute('aria-label',
+                       `User can create points to test their challenges`)
+                       })"
+              ))
+            ),
+            column(
+              2,
+              br(), br(), # to fit the height on both plot and hintboxes
+              conditionalPanel(
+                condition = "input.hints1 != 0 || input.hints2 != 0 ||
+                input.hints3 != 0",
+                id = 'hintbox',
+                checkboxInput("median", "Median", FALSE),
+                p("Blue vertical line", class = "bluetext"),
+                br(),
+                checkboxInput("mean", "Mean", FALSE),
+                p("Red vertical line", class = "redtext"),
+                br(),
+                checkboxInput("iqr", "IQR", FALSE),
+                p("Blue horizontal line", class = "bluetext"),
+                br(),
+                checkboxInput("sd", "Std Dev", FALSE),
+                p("Red horizontal line", class = "redtext")
+              )
+            ))
+        ),
+        ## References ----
+        tabItem(
+          tabName = "References",
+          h2("References"),
+          p(     #shinyBS
+            class = "hangingindent",
+            "Bailey, E. (2015), shinyBS: Twitter bootstrap components for shiny.
+            (v0.61), [R package]. Available from
+            https://CRAN.R-project.org/package=shinyBS"
+          ),
+          p(     #Boast Utilities
+            class = "hangingindent",
+            "Carey, R. (2019), boastUtils: BOAST Utilities. (v0.1.0),
+            [R Package]. Available from
+            https://github.com/EducationShinyAppTeam/boastUtils"
+          ),
+          p(     #shinydashboard
+            class = "hangingindent",
+            "Chang, W. and Borges Ribeio, B. (2018), shinydashboard: Create
+            dashboards with 'Shiny'. (v0.7.1), [R Package]. Available from
+            https://CRAN.R-project.org/package=shinydashboard"
+          ),
+          p(     #shiny
+            class = "hangingindent",
+            "Chang, W., Cheng, J., Allaire, J., Xie, Y., and McPherson, J.
+            (2019), shiny: Web application framework for R. (v1.4.0),
+            [R Package]. Available from https://CRAN.R-project.org/package=shiny"
+          ),
+          p(     #shinyWidgets
+            class = "hangingindent",
+            "Perrier, V., Meyer, F., Granjon, D., Fellows, I., and Davis, W.
+            (2020), shinyWidgets: Custom Inputs Widgets for Shiny
+            (v0.5.2), [R package]. Available from
+            https://cran.r-project.org/web/packages/shinyWidgets/index.html"
+          ),
+          p(     #reference for ideas
+            class = "hangingindent",
+            " Statistical Applets - Mean and Median (n.d.), Available from
+          http://digitalfirst.bfwpub.com/stats_applet/generic_stats_applet_6_meanmed.html"
+          ),
+          br(),
+          br(),
+          br(),
+          boastUtils::copyrightInfo()
+        )
+      )
+    )
+  )
+)
+
+# Define the server ----
 server <- function(input, output, session) {
   val <- reactiveValues(x = NULL, y = NULL)
   # Listen for clicks
@@ -65,20 +479,19 @@ server <- function(input, output, session) {
       session = session,
       title = "Instructions:",
       text = tags$ol(
-        tags$li("Create points by clicking in the plot to add points and 
+        tags$li("Create points by clicking in the plot to add points and
                 see results until you have 15 points total."),
         tags$li("Use the hint boxes on the top left corner if you need."),
         tags$li("Click Clear Points to restart and New Challenge .")
       ),
-      type = "info",
-      btn_colors = "orange"
+      type = "info"
     )
   })
   observeEvent(input$nextbutton, {
-    updateTabItems(session, "tabs", "prerequisite1")
+    updateTabItems(session, "tabs", "prerequisite")
   })
   observeEvent(input$start, {
-    updateTabItems(session, "tabs", "game")
+    updateTabItems(session, "tabs", "challenge")
   })
   # 'Location' question
   output$questionforL <- renderText({
@@ -89,15 +502,15 @@ server <- function(input, output, session) {
       "Challenge: Please use 15 points to make them left skewed."
     }
     else if (b$right == 3) {
-      "Challenge: Please use 15 points to make the median less than 1 
+      "Challenge: Please use 15 points to make the median less than 1
       and the mean greater than 4."
     }
     else if (b$right == 4) {
-      "Challenge: Please use 15 points to make the median greater than 9.5 
+      "Challenge: Please use 15 points to make the median greater than 9.5
       and the mean less than 6."
     }
     else if (b$right == 5) {
-      "Challenge: Please use 15 points to make the absolute difference between 
+      "Challenge: Please use 15 points to make the absolute difference between
       the mean and median at least 2."
     }
     else if (b$right == 6) {
@@ -119,7 +532,7 @@ server <- function(input, output, session) {
       "Challenge: Please use 15 points to make both the SD and IQR less than 1."
     }
     else if (c$right == 4) {
-      "Challenge: Please use 15 points to make the IQR zero and 
+      "Challenge: Please use 15 points to make the IQR zero and
       the SD bigger than 1."
     }
     else if (c$right == 5) {
@@ -129,7 +542,7 @@ server <- function(input, output, session) {
       "Challenge: Please use 15 points to make the IQR smaller than SD."
     }
     else if (c$right == 7) {
-      "Challenge: Please use 15 points to make both the SD and 
+      "Challenge: Please use 15 points to make both the SD and
       the IQR less than 2."
     }
   })
@@ -142,15 +555,15 @@ server <- function(input, output, session) {
       "Challenge: Please use 15 points to make them left skewed."
     }
     else if (d$right == 3) {
-      "Challenge: Please use 15 points to make the median less than 1 
+      "Challenge: Please use 15 points to make the median less than 1
       and the mean greater than 4."
     }
     else if (d$right == 4) {
-      "Challenge: Please use 15 points to make the median greater than 9.5 
+      "Challenge: Please use 15 points to make the median greater than 9.5
       and the mean less than 6."
     }
     else if (d$right == 5) {
-      "Challenge: Please use 15 points to make the absolute difference 
+      "Challenge: Please use 15 points to make the absolute difference
       between the mean and median at least 2."
     }
     else if (d$right == 6) {
@@ -163,7 +576,7 @@ server <- function(input, output, session) {
       "Challenge: Please use 15 points to make both the SD and IQR less than 1."
     }
     else if (d$right == 9) {
-      "Challenge: Please use 15 points to make the IQR zero and 
+      "Challenge: Please use 15 points to make the IQR zero and
       the SD bigger than 1."
     }
     else if (d$right == 10) {
@@ -179,7 +592,7 @@ server <- function(input, output, session) {
       "Challenge: Please use 15 points to make the mean greater than median."
     }
     else if (d$right == 14) {
-      "Challenge: Please use 15 points to make both the SD and 
+      "Challenge: Please use 15 points to make both the SD and
       the IQR less than 2."
     }
   })
@@ -352,7 +765,7 @@ server <- function(input, output, session) {
                  0,
                  lwd = "4",
                  col = "red")
-        }
+      }
       else if (length(val$x) >= 15 & input$sd == "TRUE") {
         segments(
           mean(store1[, 1]) - sd(store1[, 1]),
@@ -485,13 +898,13 @@ server <- function(input, output, session) {
         if (b$right == 1) {
           #clicked points are greater and equal than 15
           if (length(val$x) >= 15) {
-            if (signif(median(store1[, 1]), digits = 2) == 
+            if (signif(median(store1[, 1]), digits = 2) ==
                 signif(mean(store1[, 1]), 2)) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
-                     \nHint: think about the relation of mean and median of 
+              paste0("Sorry, Please click Clear Points and try again.
+                     \nHint: think about the relation of mean and median of
                      a symmetic distribution.")
             }
           }
@@ -501,12 +914,12 @@ server <- function(input, output, session) {
         }
         else if (b$right == 2) {
           if (length(val$x) >= 15) {
-            if ((signif(median(store1[, 1]), digits = 2) > 
+            if ((signif(median(store1[, 1]), digits = 2) >
                  signif(mean(store1[, 1]), 2))) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                      \nHint: think about the relation of mean and median.")
             }
           }
@@ -521,7 +934,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                      \nHint: you can check mean and median from the hint box.")
             }
           }
@@ -535,7 +948,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                      \nHint: you can check mean and median from the hint box.")
             }
           }
@@ -549,8 +962,8 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
-                     \nHint: You can see mean and median from the hint box 
+              paste0("Sorry, Please click Clear Points and try again.
+                     \nHint: You can see mean and median from the hint box
                      to see the current difference.")
             }
           }
@@ -558,15 +971,15 @@ server <- function(input, output, session) {
             tellMePoints()
           }
         }
-        
+
         else if (b$right == 6) {
           if (length(val$x) >= 15) {
-            if ((signif(median(store1[, 1]), digits = 2) < 
+            if ((signif(median(store1[, 1]), digits = 2) <
                  signif(mean(store1[, 1]), 2))) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                      \nHint: think about the relation of mean and median.")
             }
           }
@@ -576,12 +989,12 @@ server <- function(input, output, session) {
         }
         else if (b$right == 7) {
           if (length(val$x) >= 15) {
-            if ((signif(median(store1[, 1]), digits = 2) < 
+            if ((signif(median(store1[, 1]), digits = 2) <
                  signif(mean(store1[, 1]), 2))) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                      \nHint: think about left-skewed or right-skewed")
             }
           }
@@ -590,14 +1003,14 @@ server <- function(input, output, session) {
           }
         }
       })
-        output$feedback2 <- renderText({
+      output$feedback2 <- renderText({
         if (c$right == 1) {
           if (length(val$x) >= 15) {
             if (sd(store1[, 1]) > 3 && IQR(store1[, 1]) > 3) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: you can check SD and IQR from the hint box.")
             }
           }
@@ -607,12 +1020,12 @@ server <- function(input, output, session) {
         }
         else if (c$right == 2) {
           if (length(val$x) >= 15) {
-            if (signif(sd(store1[, 1]), digits = 2) < 
+            if (signif(sd(store1[, 1]), digits = 2) <
                 signif(IQR(store1[, 1]), digits = 2)) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: think about the variation of the points.")
             }
           }
@@ -627,12 +1040,12 @@ server <- function(input, output, session) {
             }
             else{
               if (sd(store1[, 1]) < 1 &&  IQR(store1[, 1]) > 1) {
-                paste0("Sorry, IQR is more than 1. Please click Clear Points 
+                paste0("Sorry, IQR is more than 1. Please click Clear Points
                        and try again.")
               }
               else if (sd(store1[, 1]) > 1 &&
                        IQR(store1[, 1]) < 1) {
-                paste0("Sorry, SD is more than 1. Please click Clear Points 
+                paste0("Sorry, SD is more than 1. Please click Clear Points
                        and try again.")
               }
             }
@@ -648,7 +1061,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: think about the variation of the points.")
             }
           }
@@ -662,7 +1075,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: think about the variation of the points.")
             }
           }
@@ -677,7 +1090,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: you can check SD and IQR from the hint box.")
             }
           }
@@ -697,7 +1110,7 @@ server <- function(input, output, session) {
               }
               else if (sd(store1[, 1]) > 2 &&
                        IQR(store1[, 1]) < 2) {
-                paste0("Sorry, SD is more than 2. Please click Clear Points 
+                paste0("Sorry, SD is more than 2. Please click Clear Points
                        and try again.")
               }
             }
@@ -706,17 +1119,17 @@ server <- function(input, output, session) {
             tellMePoints()
           }
         }
-        })
-        output$feedback3 <- renderText({
+      })
+      output$feedback3 <- renderText({
         if (d$right == 1) {
           if (length(val$x) >= 15) {
-            if (abs(signif(median(store1[, 1]), digits = 2) == 
+            if (abs(signif(median(store1[, 1]), digits = 2) ==
                     signif(mean(store1[, 1]), digits = 2))) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
-                      \nHint: think about the relation of mean and median of 
+              paste0("Sorry, Please click Clear Points and try again.
+                      \nHint: think about the relation of mean and median of
                      a symmetic distribution.")
             }
           }
@@ -726,12 +1139,12 @@ server <- function(input, output, session) {
         }
         else if (d$right == 2) {
           if (length(val$x) >= 15) {
-            if ((signif(median(store1[, 1]), digits = 2) > 
+            if ((signif(median(store1[, 1]), digits = 2) >
                  signif(mean(store1[, 1]), 2))) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: think about the relation of mean and median.")
             }
           }
@@ -745,7 +1158,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: you can check mean and median from the hint box.")
             }
           }
@@ -759,7 +1172,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: you can check mean and median from the hint box.")
             }
           }
@@ -773,8 +1186,8 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
-                      \nHint: You can see mean and median from the hint box 
+              paste0("Sorry, Please click Clear Points and try again.
+                      \nHint: You can see mean and median from the hint box
                      to see the current difference.")
             }
           }
@@ -788,7 +1201,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: you can check SD and IQR from the hint box.")
             }
           }
@@ -798,12 +1211,12 @@ server <- function(input, output, session) {
         }
         else if (d$right == 7) {
           if (length(val$x) >= 15) {
-            if (signif(sd(store1[, 1]), digits = 2) < signif(IQR(store1[, 1]), 
+            if (signif(sd(store1[, 1]), digits = 2) < signif(IQR(store1[, 1]),
                                                              digits = 2)) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: you can check SD and IQR from the hint box.")
             }
           }
@@ -818,12 +1231,12 @@ server <- function(input, output, session) {
             }
             else{
               if (sd(store1[, 1]) < 1 &&  IQR(store1[, 1]) > 1) {
-                paste0("Sorry, IQR is more than 1. Please click Clear Points 
+                paste0("Sorry, IQR is more than 1. Please click Clear Points
                        and try again.")
               }
               else if (sd(store1[, 1]) > 1 &&
                        IQR(store1[, 1]) < 1) {
-                paste0("Sorry, SD is more than 1. Please click Clear Points 
+                paste0("Sorry, SD is more than 1. Please click Clear Points
                        and try again.")
               }
             }
@@ -839,7 +1252,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: think about the variation of the points.")
             }
           }
@@ -853,7 +1266,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: think about the variation of the points.")
             }
           }
@@ -861,15 +1274,15 @@ server <- function(input, output, session) {
             tellMePoints()
           }
         }
-        
+
         else if (d$right == 11) {
           if (length(val$x) >= 15) {
-            if ((signif(median(store1[, 1]), digits = 2) < 
+            if ((signif(median(store1[, 1]), digits = 2) <
                  signif(mean(store1[, 1]), 2))) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: you can check SD and IQR from the hint box.")
             }
           }
@@ -883,7 +1296,7 @@ server <- function(input, output, session) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: you can check SD and IQR from the hint box.")
             }
           }
@@ -893,12 +1306,12 @@ server <- function(input, output, session) {
         }
         else if (d$right == 13) {
           if (length(val$x) >= 15) {
-            if ((signif(median(store1[, 1]), digits = 2) < 
+            if ((signif(median(store1[, 1]), digits = 2) <
                  signif(mean(store1[, 1]), 2))) {
               paste0("Congratulations, you are right!")
             }
             else{
-              paste0("Sorry, Please click Clear Points and try again. 
+              paste0("Sorry, Please click Clear Points and try again.
                       \nHint: think about left-skewed or right-skewed")
             }
           }
@@ -913,12 +1326,12 @@ server <- function(input, output, session) {
             }
             else{
               if (sd(store1[, 1]) < 2 &&  IQR(store1[, 1]) > 2) {
-                paste0("Sorry, IQR is more than 2. Please click Clear Points 
+                paste0("Sorry, IQR is more than 2. Please click Clear Points
                        and try again.")
               }
               else if (sd(store1[, 1]) > 2 &&
                        IQR(store1[, 1]) < 2) {
-                paste0("Sorry, SD is more than 2. Please click Clear Points 
+                paste0("Sorry, SD is more than 2. Please click Clear Points
                        and try again.")
               }
             }
@@ -931,3 +1344,6 @@ server <- function(input, output, session) {
     })
   })
 }
+
+# App Call----
+boastUtils::boastApp(ui = ui, server = server)
