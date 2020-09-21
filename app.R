@@ -37,7 +37,7 @@ ui <- list(
         id = "tabs",
         menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
         menuItem("Prerequisites", tabName = "prerequisite", icon = icon("book")),
-        menuItem("Challenge", tabName = "challenge", icon = icon("cogs")),
+        menuItem("Challenges", tabName = "challenge", icon = icon("cogs")),
         menuItem("References", tabName = "References", icon = icon("leanpub"))
       ),
       tags$div(class = "sidebar-logo",
@@ -88,7 +88,7 @@ ui <- list(
             br(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 09/8/2020 by NJH.")
+            div(class = "updated", "Last Update: 9/21/2020 by NJH.")
           )
         ),
         ##Prerequisites tab ----
@@ -97,58 +97,88 @@ ui <- list(
           withMathJax(),
           h2("Prerequisites"),
           br(),
+          ## We will have two set of prereq's for now. The original focused on
+          ## sample statistics which will be commented out for now and a set of
+          ## neutral/non-technical text will be put in place --NJH, 9/21/20
+          h3("Measures of Location"),
           tags$ul(
-            tags$li(
-              # This is not the most productive meaning for the SAM but it is what
-              # this app supports.
-              "You can interpret the value of the ",
-              tags$em("sample arithmetic mean"), " of a data set as being
-          the balancing point of the data set when plotted. This value is
-          commonly denoted as \\(\\overline{x}\\) or as
-          \\(SAM\\left(x_1,\\ldots,x_n\\right)\\)."
-            ),
-            tags$li(
-              "You can interpret the value of the ", tags$em("sample median"), " of
-          a data set as being the value that cuts the ordered data set into two
-          equally sized subsets. This value is also known as the 50th percentile
-          or the second quartile. There is no single symbol that represents this
-          value; some of the more common ones include
-          \\(Q_2\\), \\(\\widetilde{x}\\),
-          and \\(Median\\left(x_1\\ldots,x_n\\right)\\)."
-            ),
-            tags$li(
-              "You can interpret the value of the ", tags$em("first quartile"),
-              " (a.k.a. the lower quartile or the 25th percentile) as being the
-          value cuts off the smallest quarter (25%) of the ordered data set
-          from the rest. Thus, 25% of the values in the data set will be
-          smaller than this value and 75% would bethis value or larger.
-          We often use \\(Q_1\\) to represent this value,sometimes \\(Q_l\\)."
-            ),
-            tags$li(
-              "You can interpret the value of the ", tags$em("third quartile"),
-              " (a.k.a. the upper quartile or the 75th percentile) as being the
-          value cuts off the smallest three-quarters (75%) of the ordered
-          data set from the rest. Thus, 75% of the values in the data set
-          will be smaller than this value and 25% would be this value or larger.
-          We often use \\(Q_3\\) to represent this value, sometimes \\(Q_u\\)."
-            ),
-            tags$li(
-              "The value of the ", tags$em("interquartile range"), " is a measure of
-          variation found by looking at the distance between the values of the
-          first and third quartiles. This distance is the width of the smallest
-          interval that contains that middle 50% of the ordered data set.
-          We often represent this value with the letters ", tags$em("IQR"), "
-          and with the formula \\(IQR = Q_3-Q_1\\)."
-            ),
-            tags$li(
-              "The value of the ", tags$em("sample [arithmetic] standard deviation"),
-              " provides a measure for how the data values differ from the each
-              other. If the observations did not vary, then each value would be
-              the same and the value of this statistics would be zero. The most
-              common ways to represent this value include \\(s\\), \\(s_x\\),
-              and \\(SASD\\left(x_1,\\ldots,x_n\\right)\\)."
-            )
+            tags$li(tags$strong("Median: "), "the 50th percentile (half of the
+                    data are below and half of the data are above this value.
+                    Attempts to capture the notion of a 'typical' value."),
+            tags$li(tags$strong("Mean: "), "the arithmetic average; captures the
+                    concept of center when totals are relevant.")
           ),
+          h3("Measures of Variation"),
+          tags$ul(
+            tags$li(tags$strong("Interquartile Range (IQR): "), "the difference
+                    between the 75th and 25th percentiles; captures how much of
+                    the number line is covered by the middle half of the data."),
+            tags$li(tags$strong("Standard Deviation (SD): "), "measures the
+                    typical distance between a data value and the value of the
+                    mean. Typically, about 2/3rds of the data in a symmetric
+                    histogram is within on standard deviation of the mean.")
+          ),
+          h3("Sensitive vs. Robust Measures"),
+          tags$ul(
+            tags$li("The Mean and Standard Deviation are called ",
+                    tags$strong("sensitive measures"), " because they are highly
+                    affected by the values of outliers."),
+            tags$li("The Median and IQR are called ",
+                    tags$strong("robust measures"), " because they are relatively
+                    unaffected by the values of outliers.")
+          ),
+          # tags$ul(
+          #   tags$li(
+          #     # This is not the most productive meaning for the SAM but it is what
+          #     # this app supports.
+          #     "You can interpret the value of the ",
+          #     tags$em("sample arithmetic mean"), " of a data set as being
+          # the balancing point of the data set when plotted. This value is
+          # commonly denoted as \\(\\overline{x}\\) or as
+          # \\(SAM\\left(x_1,\\ldots,x_n\\right)\\)."
+          #   ),
+          #   tags$li(
+          #     "You can interpret the value of the ", tags$em("sample median"), " of
+          # a data set as being the value that cuts the ordered data set into two
+          # equally sized subsets. This value is also known as the 50th percentile
+          # or the second quartile. There is no single symbol that represents this
+          # value; some of the more common ones include
+          # \\(Q_2\\), \\(\\widetilde{x}\\),
+          # and \\(Median\\left(x_1\\ldots,x_n\\right)\\)."
+          #   ),
+          #   tags$li(
+          #     "You can interpret the value of the ", tags$em("first quartile"),
+          #     " (a.k.a. the lower quartile or the 25th percentile) as being the
+          # value cuts off the smallest quarter (25%) of the ordered data set
+          # from the rest. Thus, 25% of the values in the data set will be
+          # smaller than this value and 75% would bethis value or larger.
+          # We often use \\(Q_1\\) to represent this value,sometimes \\(Q_l\\)."
+          #   ),
+          #   tags$li(
+          #     "You can interpret the value of the ", tags$em("third quartile"),
+          #     " (a.k.a. the upper quartile or the 75th percentile) as being the
+          # value cuts off the smallest three-quarters (75%) of the ordered
+          # data set from the rest. Thus, 75% of the values in the data set
+          # will be smaller than this value and 25% would be this value or larger.
+          # We often use \\(Q_3\\) to represent this value, sometimes \\(Q_u\\)."
+          #   ),
+          #   tags$li(
+          #     "The value of the ", tags$em("interquartile range"), " is a measure of
+          # variation found by looking at the distance between the values of the
+          # first and third quartiles. This distance is the width of the smallest
+          # interval that contains that middle 50% of the ordered data set.
+          # We often represent this value with the letters ", tags$em("IQR"), "
+          # and with the formula \\(IQR = Q_3-Q_1\\)."
+          #   ),
+          #   tags$li(
+          #     "The value of the ", tags$em("sample [arithmetic] standard deviation"),
+          #     " provides a measure for how the data values differ from the each
+          #     other. If the observations did not vary, then each value would be
+          #     the same and the value of this statistics would be zero. The most
+          #     common ways to represent this value include \\(s\\), \\(s_x\\),
+          #     and \\(SASD\\left(x_1,\\ldots,x_n\\right)\\)."
+          #   )
+          # ),
           br(),
           div(
             style = "text-align:center",
@@ -416,7 +446,7 @@ ui <- list(
 server <- function(input, output, session) {
   challenge <- reactiveVal()
   val <- reactiveValues(x = NULL, y = NULL)
-  
+
   result <- function(feedback, success) {
     stmt <- boastUtils::generateStatement(
       session,
@@ -425,12 +455,12 @@ server <- function(input, output, session) {
       description = feedback,
       success = success
     )
-    
+
     boastUtils::storeStatement(session, stmt)
-    
+
     return(feedback)
   }
-  
+
   # Listen for clicks
   observe({
     # Initially this will be empty
@@ -441,14 +471,14 @@ server <- function(input, output, session) {
       val$x <- c(val$x, input$clusterClick$x)
       val$y <- c(val$y, input$clusterClick$y)
     })
-    
+
     coords <- jsonlite::toJSON({
       data.frame(
-        x = val$x, 
+        x = val$x,
         y = val$y
       )
     })
-    
+
     stmt <- boastUtils::generateStatement(
       session,
       verb = "answered",
@@ -457,7 +487,7 @@ server <- function(input, output, session) {
       interactionType = "performance",
       response = coords
     )
-    
+
     boastUtils::storeStatement(session, stmt)
   })
   b <- reactiveValues(right = c(sample(1:7, 1)))
@@ -692,6 +722,7 @@ server <- function(input, output, session) {
         ylab = "Frequency",
         cex = 1.5,
         cex.lab = 1.5,
+        cex.axis = 1.5,
         pch = 16
       )
       output$meanvalue <- renderText({
