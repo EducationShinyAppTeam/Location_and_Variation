@@ -194,7 +194,7 @@ ui <- list(
         tabItem(
           tabName = "challenge",
           # Add a title
-          h2("The Location and Variation Challenge"),
+          h2("The Location and Variation Challenges"),
           tabsetPanel(
             type = "tabs",
             ### Location Tab ----
