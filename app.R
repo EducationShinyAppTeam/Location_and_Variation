@@ -241,7 +241,7 @@ ui <- list(
                 column(
                   1, offset = 5,
                   bsButton(
-                    inputId = "clear2",
+                    inputId = "clearLocationChallenge",
                     label = "Clear Points",
                     style = "default",
                     size = "large"
@@ -289,7 +289,7 @@ ui <- list(
                 column(
                   1, offset = 5,
                   bsButton(
-                    inputId = "clear1",
+                    inputId = "clearVariationChallenge",
                     label = "Clear Points",
                     style = "default",
                     size = "large"
@@ -349,7 +349,7 @@ ui <- list(
                 column(
                   1, offset = 5,
                   bsButton(
-                    inputId = "clear3",
+                    inputId = "clearMixedChallenge",
                     label = "Clear Points",
                     style = "default",
                     size = "large"
@@ -531,7 +531,11 @@ server <- function(input, output, session) {
   })
   
   # Clear the points on 'clear' button click
-  observeEvent(input$clear1 || input$clear2 || input$clear3, {
+  observeEvent(
+    input$clearVariationChallenge ||
+    input$clearLocationChallenge ||
+    input$clearMixedChallenge,
+  {
     clearPoints()
   })
   
