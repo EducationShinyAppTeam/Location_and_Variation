@@ -36,7 +36,7 @@ ui <- list(
       sidebarMenu(
         id = "tabs",
         menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
-        menuItem("Prerequisites", tabName = "prerequisite", icon = icon("book")),
+        menuItem("Prerequisites", tabName = "prerequisites", icon = icon("book")),
         menuItem("Challenges", tabName = "challenge", icon = icon("cogs")),
         menuItem("References", tabName = "References", icon = icon("leanpub"))
       ),
@@ -93,7 +93,7 @@ ui <- list(
         ),
         ##Prerequisites tab ----
         tabItem(
-          tabName = "prerequisite",
+          tabName = "prerequisites",
           withMathJax(),
           h2("Prerequisites"),
           br(),
@@ -196,6 +196,7 @@ ui <- list(
           # Add a title
           h2("The Location and Variation Challenges"),
           tabsetPanel(
+            id = "challenge-tabset",
             type = "tabs",
             ### Location Tab ----
             tabPanel(
@@ -231,7 +232,7 @@ ui <- list(
                 column(
                   1,
                   bsButton(
-                    inputId = "bs2",
+                    inputId = "newLocationChallenge",
                     label = "New Challenge",
                     style = "default",
                     size = "large"
@@ -279,7 +280,7 @@ ui <- list(
                 column(
                   1,
                   bsButton(
-                    inputId = "bs1",
+                    inputId = "newVariationChallenge",
                     label = "New Challenge",
                     style = "default",
                     size = "large"
@@ -339,7 +340,7 @@ ui <- list(
                 column(
                   1,
                   bsButton(
-                    inputId = "bs3",
+                    inputId = "newMixedChallenge",
                     label = "New Challenge",
                     style = "default",
                     size = "large"
@@ -447,12 +448,18 @@ server <- function(input, output, session) {
   challenge <- reactiveVal()
   val <- reactiveValues(x = NULL, y = NULL)
 
+  ## Clear function ----
+  clearPoints <- function() {
+    val$x <- NULL
+    val$y <- NULL
+  }
+  
   result <- function(feedback, success) {
     stmt <- boastUtils::generateStatement(
       session,
       verb = "scored",
       object = "shiny-tab-challenge",
-      description = feedback,
+      description = str_squish(feedback),
       success = success
     )
 
@@ -483,60 +490,56 @@ server <- function(input, output, session) {
       session,
       verb = "answered",
       object = "clusterClick",
-      description = challenge,
+      description = str_squish(challenge),
       interactionType = "performance",
       response = coords
     )
 
     boastUtils::storeStatement(session, stmt)
   })
+  
   b <- reactiveValues(right = c(sample(1:7, 1)))
   c <- reactiveValues(right = c(sample(1:7, 1)))
   d <- reactiveValues(right = c(sample(1:14, 1)))
-  observeEvent(input$bs1, {
+  
+  observeEvent(input$newVariationChallenge, {
     b$right = sample(1:7, 1)
     c$right = sample(1:7, 1)
     d$right = sample(1:14, 1)
   })
-  observeEvent(input$bs2, {
+  
+  observeEvent(input$newLocationChallenge, {
     b$right = sample(1:7, 1)
     c$right = sample(1:7, 1)
     d$right = sample(1:14, 1)
   })
-  observeEvent(input$bs3, {
+  
+  observeEvent(input$newMixedChallenge, {
     b$right = sample(1:7, 1)
     c$right = sample(1:7, 1)
     d$right = sample(1:14, 1)
   })
-  observe({
-    if (input$bs1 >= 0) {
-      val$x <- NULL
-      val$y <- NULL
-    }
-    if (input$bs2 >= 0) {
-      val$x <- NULL
-      val$y <- NULL
-    }
-    if (input$bs3 >= 0) {
-      val$x <- NULL
-      val$y <- NULL
-    }
+  
+  
+  # Clear the points on 'new challenge' button click
+  observeEvent(
+    input$newVariationChallenge ||
+    input$newLocationChallenge ||
+    input$newMixedChallenge,
+  {
+    clearPoints()
   })
+  
   # Clear the points on 'clear' button click
-  observe({
-    if (input$clear1 >= 0) {
-      val$x <- NULL
-      val$y <- NULL
-    }
-    if (input$clear2 >= 0) {
-      val$x <- NULL
-      val$y <- NULL
-    }
-    if (input$clear3 >= 0) {
-      val$x <- NULL
-      val$y <- NULL
-    }
+  observeEvent(input$clear1 || input$clear2 || input$clear3, {
+    clearPoints()
   })
+  
+  # Clear the points on 'challenge-tabset' change
+  observeEvent(input$`challenge-tabset`, {
+    clearPoints()
+  })
+  
   observeEvent(input$info,{
     sendSweetAlert(
       session = session,
@@ -550,12 +553,17 @@ server <- function(input, output, session) {
       type = "info"
     )
   })
+  
   observeEvent(input$nextbutton, {
-    updateTabItems(session, "tabs", "prerequisite")
+    updateTabItems(session, "tabs", "prerequisites")
   })
+  
   observeEvent(input$start, {
     updateTabItems(session, "tabs", "challenge")
   })
+  
+  ## BEGIN TODO ----
+  # Consider rewriting this section using a lookup table instead of ifelse block.
   # 'Location' question
   output$questionforL <- renderText({
     if (b$right == 1) {
@@ -660,6 +668,7 @@ server <- function(input, output, session) {
       challenge <<- "Challenge: Please use 15 points to make both the SD and
       the IQR less than 2."
     }
+    ## END TODO ----
     challenge
   })
   # Generate the plot of the clustered points
@@ -736,10 +745,10 @@ server <- function(input, output, session) {
       })
       output$meanvalue1 <- renderText({
         if (length(val$x) < 15 &
-            length(val$x) >= 1  & input$median   == "TRUE") {
+            length(val$x) >= 1  & input$median == "TRUE") {
           paste("median:", signif(median(val$x), digits = 3))
         }
-        else if (length(val$x) >= 15 & input$median   == "TRUE") {
+        else if (length(val$x) >= 15 & input$median == "TRUE") {
           paste("median:", signif(median(store1[, 1]), digits = 3))
         }
       })
@@ -917,47 +926,10 @@ server <- function(input, output, session) {
       }
       # feedback function telling to user how many points left
       tellMePoints <- function() {
-        if (length(val$x) == 14) {
-          paste0("You still need to plot ", tags$strong("one"), " point.")
-        }
-        else if (length(val$x) == 13) {
-          paste0("You still need to plot ", tags$strong("2"), " points.")
-        }
-        else if (length(val$x) == 12) {
-          paste0("You still need to plot ", tags$strong("3"), " points.")
-        }
-        else if (length(val$x) == 11) {
-          paste0("You still need to plot ", tags$strong("4"), " points.")
-        }
-        else  if (length(val$x) == 10) {
-          paste0("You still need to plot ", tags$strong("5"), " points.")
-        }
-        else  if (length(val$x) == 9) {
-          paste0("You still need to plot ", tags$strong("6"), " points.")
-        }
-        else   if (length(val$x) == 8) {
-          paste0("You still need to plot ", tags$strong("7"), " points.")
-        }
-        else if (length(val$x) == 7) {
-          paste0("You still need to plot ", tags$strong("8"), " points.")
-        }
-        else  if (length(val$x) == 6) {
-          paste0("You still need to plot ", tags$strong("9"), " points.")
-        }
-        else  if (length(val$x) == 5) {
-          paste0("You still need to plot ", tags$strong("10"), " points.")
-        }
-        else if (length(val$x) == 4) {
-          paste0("You still need to plot ", tags$strong("11"), " points.")
-        }
-        else  if (length(val$x) == 3) {
-          paste0("You still need to plot ", tags$strong("12"), " points.")
-        }
-        else   if (length(val$x) == 2) {
-          paste0("You still need to plot ", tags$strong("13"), " points.")
-        }
-        else  if (length(val$x) == 1) {
-          paste0("You still need to plot ", tags$strong("14"), " points.")
+        count <- length(val$x)
+        if(count < 15) {
+          remaining <- 15 - count
+          paste0("You still need to plot ", tags$strong(remaining), " point(s).")
         }
       }
       # feedback for 'Location' question
