@@ -116,7 +116,7 @@ ui <- list(
             tags$li(tags$strong("Standard Deviation (SD): "), "measures the
                     typical distance between a data value and the value of the
                     mean. Typically, about 2/3rds of the data in a symmetric
-                    histogram is within on standard deviation of the mean.")
+                    histogram is within one standard deviation of the mean.")
           ),
           h3("Sensitive vs. Robust Measures"),
           tags$ul(
@@ -453,7 +453,7 @@ server <- function(input, output, session) {
     val$x <- NULL
     val$y <- NULL
   }
-  
+
   result <- function(feedback, success) {
     stmt <- boastUtils::generateStatement(
       session,
@@ -497,30 +497,30 @@ server <- function(input, output, session) {
 
     boastUtils::storeStatement(session, stmt)
   })
-  
+
   b <- reactiveValues(right = c(sample(1:7, 1)))
   c <- reactiveValues(right = c(sample(1:7, 1)))
   d <- reactiveValues(right = c(sample(1:14, 1)))
-  
+
   observeEvent(input$newVariationChallenge, {
     b$right = sample(1:7, 1)
     c$right = sample(1:7, 1)
     d$right = sample(1:14, 1)
   })
-  
+
   observeEvent(input$newLocationChallenge, {
     b$right = sample(1:7, 1)
     c$right = sample(1:7, 1)
     d$right = sample(1:14, 1)
   })
-  
+
   observeEvent(input$newMixedChallenge, {
     b$right = sample(1:7, 1)
     c$right = sample(1:7, 1)
     d$right = sample(1:14, 1)
   })
-  
-  
+
+
   # Clear the points on 'new challenge' button click
   observeEvent(
     input$newVariationChallenge ||
@@ -529,7 +529,7 @@ server <- function(input, output, session) {
   {
     clearPoints()
   })
-  
+
   # Clear the points on 'clear' button click
   observeEvent(
     input$clearVariationChallenge ||
@@ -538,12 +538,12 @@ server <- function(input, output, session) {
   {
     clearPoints()
   })
-  
+
   # Clear the points on 'challenge-tabset' change
   observeEvent(input$`challenge-tabset`, {
     clearPoints()
   })
-  
+
   observeEvent(input$info,{
     sendSweetAlert(
       session = session,
@@ -557,15 +557,15 @@ server <- function(input, output, session) {
       type = "info"
     )
   })
-  
+
   observeEvent(input$nextbutton, {
     updateTabItems(session, "tabs", "prerequisites")
   })
-  
+
   observeEvent(input$start, {
     updateTabItems(session, "tabs", "challenge")
   })
-  
+
   ## BEGIN TODO ----
   # Consider rewriting this section using a lookup table instead of ifelse block.
   # 'Location' question
