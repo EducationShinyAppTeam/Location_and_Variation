@@ -26,6 +26,12 @@ ui <- list(
       tags$li(class = "dropdown",
               actionLink("info",icon("info",class = "myClass"))),
       tags$li(
+        class = "dropdown",
+        tags$a(target = "_blank", icon("comments"),
+               href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Location_and_Variation"
+        )
+      ),
+      tags$li(
         class = 'dropdown',
         tags$a(href = "https://shinyapps.science.psu.edu/",
                icon('home', lib = 'font-awesome'))
