@@ -40,7 +40,7 @@ ui <- list(
     dashboardSidebar(
       width = 250,
       sidebarMenu(
-        id = "tabs",
+        id = "pages",
         menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
         menuItem("Prerequisites", tabName = "prerequisites", icon = icon("book")),
         menuItem("Challenges", tabName = "challenge", icon = icon("cogs")),
@@ -66,7 +66,7 @@ ui <- list(
             tags$li("In the challenge, you'll first need to select which challenge
                 (Location, Variation, or Both)."),
             tags$li("Create points by clicking in the plot to add points
-                and watch your results until you have 15 points total."),
+                and watch your results until you earn 15 points total."),
             tags$li("Show the summary statistics as you go along by clicking on
                 the hint button and checking the summaries desired."),
             tags$li("There will be a message showing your results
@@ -121,7 +121,7 @@ ui <- list(
                     the number line is covered by the middle half of the data."),
             tags$li(tags$strong("Standard Deviation (SD): "), "measures the
                     typical distance between a data value and the value of the
-                    mean. Typically, about 2/3rds of the data in a symmetric
+                    mean. Typically, about 2/3 of the data in a symmetric
                     histogram is within one standard deviation of the mean.")
           ),
           h3("Sensitive vs. Robust Measures"),
@@ -556,20 +556,21 @@ server <- function(input, output, session) {
       title = "Instructions:",
       text = tags$ol(
         tags$li("Create points by clicking in the plot to add points and
-                see results until you have 15 points total."),
-        tags$li("Use the hint boxes on the top left corner if you need."),
-        tags$li("Click Clear Points to restart and New Challenge .")
+                see results until you earn 15 points total."),
+        tags$li("Use the hint box if you need."),
+        tags$li("Click Clear Points to restart the challenge or 
+                click New Challenge to try another challenge.")
       ),
       type = "info"
     )
   })
 
   observeEvent(input$nextbutton, {
-    updateTabItems(session, "tabs", "prerequisites")
+    updateTabItems(session, "pages", "prerequisites")
   })
 
   observeEvent(input$start, {
-    updateTabItems(session, "tabs", "challenge")
+    updateTabItems(session, "pages", "challenge")
   })
 
   ## BEGIN TODO ----
@@ -608,7 +609,7 @@ server <- function(input, output, session) {
       challenge <<- "Challenge: Please use 15 points to make both the SD and IQR more than 3."
     }
     else if (c$right == 2) {
-      challenge <<- "Challenge: Please use 15 points make the IQR bigger than the SD."
+      challenge <<- "Challenge: Please use 15 points to make the IQR bigger than the SD."
     }
     else if (c$right == 3) {
       challenge <<- "Challenge: Please use 15 points to make both the SD and IQR less than 1."
@@ -653,7 +654,7 @@ server <- function(input, output, session) {
       challenge <<- "Challenge: Please use 15 points to make both the SD and IQR more than 3."
     }
     else if (d$right == 7) {
-      challenge <<- "Challenge: Please use 15 points make the IQR bigger than the SD."
+      challenge <<- "Challenge: Please use 15 points to make the IQR bigger than the SD."
     }
     else if (d$right == 8) {
       challenge <<- "Challenge: Please use 15 points to make both the SD and IQR less than 1."
