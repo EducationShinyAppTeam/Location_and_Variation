@@ -4,6 +4,7 @@ library(shiny)
 library(shinyBS)
 library(boastUtils)
 library(shinyWidgets)
+library(stringr)
 
 ## App Meta Data----------------------------------------------------------------
 APP_TITLE <<- "Location and Variation"
