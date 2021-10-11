@@ -6,15 +6,6 @@ library(boastUtils)
 library(shinyWidgets)
 library(stringr)
 
-## App Meta Data----------------------------------------------------------------
-APP_TITLE <<- "Location and Variation"
-APP_DESCP  <<- paste(
-  "This app provides set of challenges which allow a user to explore two common",
-  "measures of location (sample arithmetic mean and sample median) and two",
-  "common measures of variation (interquartile range and standard deviation."
-)
-## End App Meta Data------------------------------------------------------------
-
 # Define constants and functions ----
 
 # Define the UI ----
@@ -559,7 +550,7 @@ server <- function(input, output, session) {
         tags$li("Create points by clicking in the plot to add points and
                 see results until you earn 15 points total."),
         tags$li("Use the hint box if you need."),
-        tags$li("Click Clear Points to restart the challenge or 
+        tags$li("Click Clear Points to restart the challenge or
                 click New Challenge to try another challenge.")
       ),
       type = "info"

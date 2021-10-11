@@ -1,0 +1,20 @@
+Title: Location and Variation
+ShortName: Location Variation
+Date: 2021-10-11
+Lifecycle: experimental
+Authors@R: c(
+    person(given = "Neil", family = "Hatfield", email = "neil.hatfield@psu.edu", role = c("aut", "cre")),
+    person(given = "Robert", family = "Carey", email = "rpc5102@psu.edu", role = c("aut"))
+  )
+Chapter: Data Description
+Description: This app provides set of challenges which allow a user to explore two common measures of location (sample arithmetic mean and sample median) and two common measures of variation (interquartile range and standard deviation.
+LearningObjectives: c(
+    "The student will learn to understand Concept A in way z.",
+    "The student will learn to understand Concept B as description y."
+  )
+DisplayMode: Normal
+URL: https://psu-eberly.shinyapps.io/Location_and_Variation
+BugReports: https://github.com/EducationShinyAppTeam/Location_and_Variation/issues
+License: CC-BY-NC-SA-4.0
+Tags: game
+Type: Shiny
